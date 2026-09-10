@@ -14,7 +14,7 @@ Most topics are fast reviews. The three areas to validate most carefully are ten
 Review classes, inheritance, dataclasses, type hints, function arguments, decorators, generators, context managers, comprehensions, exceptions, modules, environments, packaging, async basics, concurrency concepts, serialization, logging, configuration, and environment variables.
 
 - [Lesson: Python for Modern AI](lessons/01-python-for-modern-ai.md)
-- Validation: understand the lesson's exit-test code without looking up syntax.
+- Validation: pass both exit tests and explain every required pattern without looking up syntax.
 
 ### 0.2 NumPy and Tensor Manipulation — SKIM
 
