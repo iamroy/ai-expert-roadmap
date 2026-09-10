@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Environments and secrets
+.venv/
+venv/
+.env
+.env.*
+!.env.example
+
+# Notebooks
+.ipynb_checkpoints/
+
+# Models, data, and generated artifacts
+*.ckpt
+*.pt
+*.pth
+*.safetensors
+data/
+artifacts/
+checkpoints/
+
+# Editors and operating systems
+.DS_Store
+.idea/
+.vscode/
+
