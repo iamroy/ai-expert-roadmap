@@ -1,62 +1,83 @@
 # 0.3 — Linear Algebra for Deep Learning
 
-The goal is practical geometric and shape intuition. You should understand what deep-learning operations do, why they are useful, and how their dimensions fit together. Proof-heavy mathematics is outside this prerequisite review.
+The goal is practical geometric intuition for embeddings, attention, transformers, and neural networks. Proof-heavy mathematics and hand calculation are outside this prerequisite review.
 
-## 1. Scalars, vectors, matrices, and tensors
+This file preserves all 14 lessons, the four-priority checkpoint, transformer connection, exit test, and answer guide from the roadmap conversation. It retains a few useful extensions from the original repository lesson.
 
-- A **scalar** is one number.
-- A **vector** is an ordered list of numbers, often representing features or a direction.
-- A **matrix** is a rectangular grid of numbers. It can represent a dataset, a collection of vectors, or a linear transformation.
-- A **tensor** generalizes these objects to more axes.
+**Source conversation:** [Create Month Zero Learning List](https://chatgpt.com/share/6aa28c17-a29c-83ea-ae5b-9202ec5ba987)
+
+## Lesson 0.3.1 — Scalars, vectors, matrices, and tensors
+
+Map these mathematical objects to ML concepts immediately:
+
+```text
+Scalar  → one number
+Vector  → one feature vector, embedding, point, or direction
+Matrix  → collection of vectors or linear transformation
+Tensor  → higher-dimensional data
+```
 
 Typical AI shapes:
 
 ```text
 scalar loss:                    []
-one embedding:                 [embedding_dim]
-token embeddings:              [sequence, embedding_dim]
-batched token embeddings:      [batch, sequence, embedding_dim]
-multi-head attention tensors:  [batch, heads, sequence, head_dim]
+embedding vector:               [768]
+token embeddings:               [128, 768]
+batch of token embeddings:      [32, 128, 768]
+multi-head attention tensor:    [32, 12, 128, 64]
 ```
 
-“Tensor” describes structure; “vector,” “matrix,” and “linear map” add mathematical meaning.
+“Tensor” describes the multidimensional structure. “Vector,” “matrix,” and “linear transformation” add mathematical meaning.
 
-## 2. Matrix multiplication as transformation
+## Lesson 0.3.2 — Vector magnitude and L2 norm
 
-Let a row vector `x` contain `d_in` input features and let `W` have shape `[d_in, d_out]`:
+A vector has direction and magnitude. For:
 
 ```text
-xW: [d_in] @ [d_in, d_out] → [d_out]
+v = [3, 4]
 ```
 
-Every output coordinate is a weighted sum of all input coordinates. The matrix maps a vector from one feature space into another.
-
-For a batch:
+the L2 norm is:
 
 ```text
-XW: [batch, d_in] @ [d_in, d_out] → [batch, d_out]
+||v||₂ = √(3² + 4²) = 5
 ```
 
-An affine neural-network layer also adds a bias:
+In general:
 
 ```text
-y = xW + b
+||v||₂ = √(v₁² + v₂² + ... + vₙ²)
 ```
 
-Strictly, the bias makes this an affine transformation rather than a purely linear one. Deep-learning libraries may store weights using a transposed convention, but the same dimensional reasoning applies.
+Norms matter for:
 
-## 3. Dot products: alignment and weighted sums
+- similarity and distance
+- vector normalization
+- regularization
+- gradient clipping
 
-For equal-length vectors:
+The L2 norm is the main norm to know for this lesson. The L1 norm is the sum of absolute values, and the Frobenius norm is an L2-like norm over all entries of a matrix.
+
+Euclidean distance between two vectors is the norm of their difference:
 
 ```text
-a · b = a₁b₁ + a₂b₂ + ... + aₙbₙ
+distance(a, b) = ||a - b||₂
 ```
 
-The dot product serves two closely related roles:
+## Lesson 0.3.3 — Dot product
 
-1. It measures directional alignment, scaled by vector lengths.
-2. It computes a weighted sum, where one vector supplies values and the other supplies weights.
+For:
+
+```text
+a = [1, 2]
+b = [3, 4]
+```
+
+the dot product is:
+
+```text
+a · b = 1×3 + 2×4 = 11
+```
 
 Geometrically:
 
@@ -64,99 +85,155 @@ Geometrically:
 a · b = ||a|| ||b|| cos(θ)
 ```
 
-- positive: vectors point broadly in the same direction
-- zero: vectors are orthogonal
-- negative: vectors point broadly in opposite directions
+Interpretation:
 
-Raw dot product is affected by both direction and magnitude. That is useful in attention, where learned magnitudes can matter, but it is not a pure direction-only similarity measure.
+- large positive: broadly aligned directions
+- near zero: roughly orthogonal
+- negative: broadly opposite directions
 
-## 4. Norms and distances
+The dot product depends on both direction and vector magnitude. It can also be viewed as a weighted sum, where one vector provides values and the other provides weights.
 
-The L2 norm is the Euclidean length of a vector:
+In attention, `Query · Key` becomes a compatibility score.
 
-```text
-||x||₂ = √(x₁² + x₂² + ... + xₙ²)
-```
+## Lesson 0.3.4 — Cosine similarity
 
-Common norms:
-
-- L1: sum of absolute values
-- L2: Euclidean length
-- Frobenius: L2-like norm over all entries of a matrix
-
-Euclidean distance measures the length of the difference:
-
-```text
-distance(a, b) = ||a - b||₂
-```
-
-Distance and similarity are related but not identical. The best choice depends on how embeddings were trained and whether their lengths carry useful information.
-
-## 5. Cosine similarity
-
-Cosine similarity normalizes out vector length:
+Cosine similarity removes vector magnitude and compares direction:
 
 ```text
 cosine(a, b) = (a · b) / (||a|| ||b||)
 ```
 
-For nonzero vectors, it ranges from `-1` to `1`. If embeddings are L2-normalized, cosine similarity equals their dot product:
+For nonzero vectors, its range is:
+
+```text
+-1  → opposite direction
+ 0  → orthogonal
+ 1  → same direction
+```
+
+If both vectors are L2-normalized, cosine similarity equals their dot product:
 
 ```text
 ||a|| = ||b|| = 1  ⇒  cosine(a, b) = a · b
 ```
 
-Cosine similarity is common in retrieval because it compares direction in embedding space. It is undefined for a zero vector, so implementations use safeguards or prevent zero embeddings.
+Embedding vectors for “car” and “automobile” may point in similar directions even though the words differ. This makes cosine similarity useful in semantic search, vector databases, and RAG.
 
-## 6. Projections
+Cosine similarity is undefined for a zero vector, so implementations must prevent or handle zero norms.
 
-The projection of vector `x` onto nonzero vector `u` is:
+## Lesson 0.3.5 — Matrix multiplication as transformation
+
+Do not think of matrix multiplication as arithmetic alone. A matrix maps vectors from one feature space into another.
+
+Suppose:
 
 ```text
-projᵤ(x) = (x · u / u · u) u
+x = [768]
+W = [768, 512]
 ```
 
-The scalar coefficient tells how much of `x` lies along `u`; multiplying by `u` produces the vector component in that direction.
-
-Projection provides intuition for learned features. A neuron can respond strongly when an input has a large component along its learned weight direction.
-
-If `u` is a unit vector, the formula simplifies to `(x · u)u`.
-
-## 7. Basis and dimensionality
-
-A basis is a set of independent directions that can construct every vector in a space. Coordinates describe a vector relative to that basis.
-
-A learned linear layer can rotate, stretch, compress, expand, or mix feature coordinates. Changing coordinates does not necessarily change the underlying information, while reducing dimensions may discard information.
-
-An embedding dimension of 768 means each item is represented by 768 coordinates. It does not imply that the data uses 768 independent directions; the effective structure can lie near a lower-dimensional subspace.
-
-## 8. Linear independence and rank
-
-Vectors are linearly independent when none can be constructed from the others. Matrix rank counts the number of independent directions represented by its rows or columns.
-
-For a matrix shaped `[m, n]`:
+Then:
 
 ```text
-rank(A) ≤ min(m, n)
+xW = [512]
 ```
 
-A low-rank matrix can be described using fewer independent factors. This matters for compression and parameter-efficient adaptation.
+Every output coordinate is a weighted sum of the 768 inputs. Depending on the matrix, a transformation can rotate, reflect, stretch, compress, expand, mix, or project directions.
 
-For example, LoRA represents a weight update as a product of two thin matrices:
+For a batch:
 
 ```text
-ΔW = AB
+XW: [batch, 768] @ [768, 512] → [batch, 512]
 ```
 
-If the inner dimension is small, `ΔW` has low rank and requires far fewer trainable parameters than a full weight matrix.
+The inner dimensions must match. Deep-learning libraries may store weights using a transposed convention, but the same dimensional reasoning applies.
 
-## 9. Transpose
+## Lesson 0.3.6 — Linear layers
 
-The transpose swaps matrix rows and columns:
+A neural-network linear layer is:
 
 ```text
-A:   [m, n]
-Aᵀ:  [n, m]
+y = xW + b
+```
+
+For example:
+
+```text
+x = [batch, 768]
+W = [768, 256]
+b = [256]
+y = [batch, 256]
+```
+
+`W` performs the learned linear transformation. Broadcasting adds the learned offset `b` to every sample.
+
+Strictly, `xW + b` is an affine transformation because of the bias. Deep-learning libraries conventionally call it a linear layer.
+
+Transformers are built largely from repeated:
+
+- matrix multiplication
+- addition
+- normalization
+- nonlinear activation
+
+## Lesson 0.3.7 — Projection
+
+In transformer code, a projection usually means a learned linear mapping into another feature space.
+
+The same token representation is mapped using three learned matrices:
+
+```text
+Q = XWq
+K = XWk
+V = XWv
+```
+
+These query, key, and value projections serve different roles:
+
+- query: what a token is looking for
+- key: what a token can be matched against
+- value: what information a token contributes
+
+The word “projection” also has a narrower geometric meaning. The orthogonal projection of `x` onto nonzero vector `u` is:
+
+```text
+projᵤ(x) = (x · u / u · u)u
+```
+
+You need the learned-mapping intuition for transformers; geometric projection proofs are unnecessary here.
+
+## Lesson 0.3.8 — Basis and dimensions
+
+A basis is a set of independent directions that can construct every vector in a space. Coordinates describe a vector relative to a basis.
+
+```text
+[0.2, -1.1, 0.7]  → a vector in a 3-dimensional space
+[768]              → an embedding in a 768-dimensional space
+```
+
+You do not need to interpret each learned embedding dimension separately. Meaning is distributed across many dimensions, unlike a handcrafted feature vector where one coordinate may explicitly mean height and another width.
+
+A learned linear layer can change the coordinate system and dimensionality. Reducing dimensions may discard information if the representation does not lie in a sufficiently lower-dimensional subspace.
+
+## Lesson 0.3.9 — Orthogonality
+
+Two vectors are orthogonal when:
+
+```text
+a · b = 0
+```
+
+For nonzero vectors under the standard Euclidean inner product, they meet at 90 degrees.
+
+In high-dimensional embedding spaces, near-orthogonality can indicate low directional similarity. It does not always mean “unrelated” in every learned model; interpretation depends on how the model was trained and how similarity is calibrated.
+
+## Lesson 0.3.10 — Transpose
+
+Transpose swaps matrix rows and columns:
+
+```text
+A  = [N, D]
+Aᵀ = [D, N]
 ```
 
 Useful identities:
@@ -166,23 +243,79 @@ Useful identities:
 (Aᵀ)ᵀ = A
 ```
 
-In attention, transposing keys changes `[sequence, head_dim]` to `[head_dim, sequence]`, allowing all query-key dot products to be computed at once.
-
-## 10. Inverses and solving systems
-
-If a square matrix `A` is invertible:
+Attention computes `QKᵀ`. If:
 
 ```text
-A⁻¹A = I
+Q  = [N, D]
+K  = [N, D]
+Kᵀ = [D, N]
 ```
 
-and the system `Ax = b` has solution `x = A⁻¹b`.
+then:
 
-Conceptually, an inverse undoes a transformation. In numerical code, do not normally compute the inverse explicitly just to solve a system. A solver such as `torch.linalg.solve(A, b)` is usually faster and more stable.
+```text
+[N, D] @ [D, N] = [N, N]
+```
 
-Many matrices are not invertible, and rectangular matrices do not have ordinary inverses. The pseudoinverse gives a least-squares-related generalization.
+This computes every query token's dot product with every key token.
 
-## 11. Eigenvalues and eigenvectors
+## Lesson 0.3.11 — Rank
+
+For this roadmap, think of rank as the amount of independent directional information in a matrix.
+
+A matrix may be large but contain redundant structure. If:
+
+```text
+row₂ = 2 × row₁
+```
+
+the second row does not introduce a new independent direction.
+
+For a matrix shaped `[m, n]`:
+
+```text
+rank(A) ≤ min(m, n)
+```
+
+You do not need to calculate rank by hand. The concept matters later for low-rank adaptation, LoRA, dimensionality reduction, and model compression.
+
+## Lesson 0.3.12 — Low-rank approximation
+
+A large matrix can sometimes be approximated with two thinner matrices.
+
+Instead of learning a full update:
+
+```text
+ΔW = [4096, 4096]
+```
+
+represent it as:
+
+```text
+A = [4096, r]
+B = [r, 4096]
+r << 4096
+
+ΔW ≈ AB
+```
+
+The product has rank at most `r` and uses:
+
+```text
+4096r + r4096
+```
+
+parameters instead of:
+
+```text
+4096 × 4096
+```
+
+This is the central parameter-saving intuition behind LoRA. The later fine-tuning module will cover how the update is applied and trained.
+
+## Lesson 0.3.13 — Eigenvalues and eigenvectors
+
+Only conceptual awareness is required.
 
 An eigenvector is a nonzero direction that a square transformation does not rotate away from itself:
 
@@ -190,150 +323,252 @@ An eigenvector is a nonzero direction that a square transformation does not rota
 Av = λv
 ```
 
-The eigenvalue `λ` tells how much that direction is scaled, including a possible sign reversal.
+- `v` is the eigenvector
+- `λ` is the eigenvalue
 
-Conceptual uses include understanding repeated transformations, stability, covariance structure, and optimization curvature. For Month 0, recognize the equation and geometric meaning; do not spend time on hand calculation.
+The eigenvalue tells how much that direction is scaled, including a possible direction reversal when negative.
 
-## 12. Singular value decomposition
+This is useful background for PCA, dimensionality reduction, repeated transformations, stability, covariance structure, and optimization. It is not a transformer prerequisite worth deriving by hand.
 
-Every matrix `A` can be factored as:
+## Lesson 0.3.14 — Singular value decomposition
+
+Singular value decomposition factors any matrix as:
 
 ```text
 A = UΣVᵀ
 ```
 
-- columns of `V` describe input directions
-- singular values in `Σ` describe the strength of each direction
-- columns of `U` describe corresponding output directions
+Intuitively:
 
-SVD works for rectangular and rank-deficient matrices. Keeping only the largest `k` singular values produces the best rank-`k` approximation under common matrix norms.
+- columns of `V` identify important input directions
+- singular values in `Σ` give the strength of those directions
+- columns of `U` identify corresponding output directions
 
-This supports:
+SVD works for rectangular and rank-deficient matrices. Keeping only the largest `k` singular values produces a rank-`k` approximation that preserves the strongest structure.
 
-- dimensionality reduction
+Relevant uses include:
+
 - compression
+- dimensionality reduction
 - denoising
-- analysis of learned weight matrices and representations
-- intuition for low-rank adaptation
+- low-rank approximation
+- analysis of representations and weight matrices
+- LoRA intuition
 
-## 13. Embeddings as a matrix lookup
+Do not spend Month 0 deriving SVD.
 
-An embedding table with vocabulary size `V` and embedding dimension `d` is a matrix:
+## The four concepts to know cold
+
+Spend most of the 0.3 review on:
+
+1. **Dot product** — measures alignment scaled by magnitude.
+2. **Cosine similarity** — compares direction after removing magnitude.
+3. **Matrix multiplication** — transforms representations through learned weighted combinations.
+4. **Projection** — maps the same representation into another learned feature space.
+
+Everything else supports these four ideas.
+
+## How this connects to transformers
+
+Start with a token embedding:
 
 ```text
-E: [V, d]
+x = [768]
 ```
 
-A token ID selects one row. For token IDs shaped `[batch, sequence]`, lookup returns:
+Project it into three roles:
 
 ```text
-[batch, sequence] → [batch, sequence, d]
+q = xWq
+k = xWk
+v = xWv
 ```
 
-One-hot multiplication gives the same mathematical result but is wasteful:
+Compare a query and key:
+
+```text
+q · k
+```
+
+Across every token:
+
+```text
+QKᵀ = [N, N]
+```
+
+After scaling, masking, and row-wise softmax:
+
+```text
+P = softmax(QKᵀ / √D)
+```
+
+Use the weights to combine values:
+
+```text
+PV: [N, N] @ [N, Dv] → [N, Dv]
+```
+
+The core flow is:
+
+```text
+linear projection
+      ↓
+dot-product compatibility
+      ↓
+normalization
+      ↓
+weighted combination of value vectors
+```
+
+The `√D` scaling keeps dot-product magnitudes from growing excessively as dimension increases, which helps prevent softmax saturation.
+
+## Useful extensions
+
+These concepts were retained from the earlier repository version because they strengthen the main lesson.
+
+### Inverses and solving systems
+
+If square matrix `A` is invertible:
+
+```text
+A⁻¹A = I
+```
+
+Conceptually, an inverse undoes a transformation. In numerical code, solve `Ax = b` with a routine such as `torch.linalg.solve(A, b)` instead of explicitly forming `A⁻¹b`; direct solvers are normally faster and more stable.
+
+Rectangular and rank-deficient matrices do not have ordinary inverses. A pseudoinverse provides a least-squares-related generalization.
+
+### Embeddings as matrix lookup
+
+An embedding table with vocabulary size `V` and embedding dimension `D` is:
+
+```text
+E = [V, D]
+```
+
+Token IDs shaped `[B, N]` select rows and produce:
+
+```text
+[B, N] → [B, N, D]
+```
+
+One-hot multiplication is mathematically equivalent but wasteful:
 
 ```text
 one_hot(token) @ E = E[token]
 ```
 
-Training changes rows of `E` so tokens useful in similar contexts can acquire related representations.
+### Shape-first debugging
 
-## 14. Attention as linear algebra
-
-For hidden states `X` shaped `[sequence, model_dim]`, learned projections create queries, keys, and values:
-
-```text
-Q = XW_Q
-K = XW_K
-V = XW_V
-```
-
-For one head:
-
-```text
-Q: [sequence, head_dim]
-K: [sequence, head_dim]
-V: [sequence, value_dim]
-```
-
-All query-key dot products are computed by:
-
-```text
-QKᵀ: [sequence, head_dim] @ [head_dim, sequence]
-    → [sequence, sequence]
-```
-
-After scaling, masking, and row-wise softmax, the attention matrix contains weights:
-
-```text
-P = softmax(QKᵀ / √head_dim)
-```
-
-Then:
-
-```text
-PV: [sequence, sequence] @ [sequence, value_dim]
-  → [sequence, value_dim]
-```
-
-Each output token is a weighted combination of value vectors. Queries and keys determine *where to look*; values determine *what information to collect*.
-
-The `√head_dim` scaling keeps dot-product magnitudes from growing too large as dimension increases, which helps prevent softmax from becoming excessively saturated.
-
-## 15. Shape-first debugging
-
-Before debugging numerical values, write the intended shapes:
+Write intended shapes before inspecting numerical values:
 
 ```text
 X:       [batch, sequence, model_dim]
-W_Q:     [model_dim, heads × head_dim]
+Wq:      [model_dim, heads × head_dim]
 Q:       [batch, sequence, heads × head_dim]
 Q split: [batch, heads, sequence, head_dim]
 scores:  [batch, heads, sequence, sequence]
 ```
 
-For every matrix multiplication, verify that the inner dimensions match and that the remaining dimensions describe the output you intend. Most early attention bugs are axis-order or masking errors rather than failures of the underlying math.
+For each matrix multiplication, verify matching inner dimensions and interpret every remaining output dimension.
 
 ## Exit test
 
-Answer without notes.
+Answer without notes:
 
-1. In geometric terms, what does multiplying a vector by a matrix do?
-2. Why is the raw dot product not purely a measure of directional similarity?
-3. Two nonzero vectors are L2-normalized. How are their dot product and cosine similarity related?
-4. What does it mean if two vectors have dot product zero?
-5. What is the projection of `x = [3, 4]` onto `u = [1, 0]`?
-6. A matrix has shape `[100, 20]`. What is the largest possible rank?
-7. Why should numerical code generally solve `Ax = b` instead of calculating `A⁻¹b` explicitly?
-8. State the geometric meaning of `Av = λv`.
-9. What does truncating an SVD to its largest singular values accomplish?
-10. An embedding table has shape `[50_000, 768]`. What is the output shape for token IDs shaped `[8, 128]`?
-11. If `Q`, `K`, and `V` each have shape `[32, 64]`, what are the shapes of `QKᵀ` and `softmax(QKᵀ)V`?
-12. In attention, what distinct roles do queries/keys and values play?
-13. A linear layer maps 768 input features to 3,072 output features for 16 tokens. Give compatible shapes for `X`, `W`, and `XW` using row-vector convention.
-14. Explain why `QKᵀ` grows quadratically with sequence length.
+1. What is a vector?
+2. What does the L2 norm represent?
+3. What does a dot product tell us?
+4. Why is cosine similarity different from dot product?
+5. What does a matrix do geometrically?
+6. Why is a linear layer `xW + b`?
+7. What is a projection?
+8. Why does attention create separate Q, K, and V projections?
+9. Why does `QKᵀ` create an `N × N` matrix?
+10. What does low-rank mean?
+11. Why is low-rank approximation useful for LoRA?
+12. At a high level, what are eigenvectors and SVD?
 
 <details>
 <summary>Show answers</summary>
 
 ### Answers
 
-1. It maps the vector into another coordinate/feature space by producing weighted combinations of its input coordinates. Depending on the matrix, it can rotate, reflect, stretch, compress, expand, or project directions.
-2. `a · b = ||a|| ||b|| cos(θ)`, so the result depends on magnitudes as well as the angle between the vectors.
-3. They are equal because both vector norms are 1.
-4. The vectors are orthogonal under the standard inner product. In geometric terms they meet at 90 degrees, provided neither is the zero vector.
-5. `[3, 0]`. Since `u` is a unit vector, the projection is `(x · u)u = 3[1, 0]`.
-6. 20, because rank cannot exceed the smaller matrix dimension.
-7. Direct solvers avoid unnecessary computation and usually have better numerical stability. Forming an explicit inverse can amplify floating-point error.
-8. `v` is a direction preserved by the transformation `A`; `A` only scales it by `λ`, with a negative value also reversing direction.
-9. It produces a low-rank approximation that preserves the strongest directions while reducing storage and computation. Under common matrix norms, truncated SVD gives the best approximation of that rank.
-10. `[8, 128, 768]`. Every token ID is replaced by its 768-value embedding row.
-11. `QKᵀ` has shape `[32, 32]`. Multiplying its row-wise softmax by `V` produces `[32, 64]`.
-12. Queries and keys produce compatibility scores that decide how strongly positions attend to one another. Values carry the information combined using those attention weights.
-13. `X` is `[16, 768]`, `W` is `[768, 3072]`, and `XW` is `[16, 3072]`.
-14. With sequence length `n`, every one of `n` queries is compared with all `n` keys, producing an `[n, n]` score matrix with `n²` entries per head and batch item.
+1. **What is a vector?**
+   A vector is an ordered list of numbers representing a point, direction, or learned representation in a feature space. An embedding shaped `[768]` is a vector.
+
+2. **What does the L2 norm represent?**
+   The L2 norm is the magnitude or length of a vector:
+
+   ```text
+   ||v||₂ = √(v₁² + v₂² + ... + vₙ²)
+   ```
+
+   It tells how large the vector is without specifying its direction.
+
+3. **What does a dot product tell us?**
+   The dot product measures alignment scaled by vector magnitudes:
+
+   ```text
+   a · b = ||a|| ||b|| cos(θ)
+   ```
+
+   Large positive values indicate alignment, values near zero indicate near-orthogonality, and negative values indicate opposing directions. In attention, `Query · Key` is a compatibility score.
+
+4. **Why is cosine similarity different from dot product?**
+   Dot product depends on direction and magnitude. Cosine similarity divides by both norms and compares direction:
+
+   ```text
+   cosine(a, b) = (a · b) / (||a|| ||b||)
+   ```
+
+5. **What does a matrix do geometrically?**
+   A matrix transforms vectors. It can rotate, scale, combine, reflect, project, or change dimensionality. For example, `[768] @ [768, 512] → [512]` maps a 768-dimensional representation into a 512-dimensional one.
+
+6. **Why is a linear layer `xW + b`?**
+   `W` performs the learned linear transformation and `b` adds a learned offset. Training learns both `W` and `b`.
+
+7. **What is a projection?**
+   In a transformer, a projection is a learned mapping of a representation into another feature space:
+
+   ```text
+   Q = XWq
+   K = XWk
+   V = XWv
+   ```
+
+8. **Why does attention create separate Q, K, and V projections?**
+   Each has a different learned role: the query represents what a token seeks, the key represents what it can match, and the value represents the information it contributes.
+
+9. **Why does `QKᵀ` create an `N × N` matrix?**
+   If `Q = [N, D]` and `K = [N, D]`, then `Kᵀ = [D, N]`, so:
+
+   ```text
+   [N, D] @ [D, N] = [N, N]
+   ```
+
+   Entry `(i, j)` measures how strongly token `i`'s query matches token `j`'s key.
+
+10. **What does low-rank mean?**
+    A low-rank matrix contains fewer independent directions than its full dimensions allow. Much of its structure can be represented with a smaller number of factors.
+
+11. **Why is low-rank approximation useful for LoRA?**
+    Instead of training a full update `ΔW = [4096, 4096]`, LoRA learns `A = [4096, r]` and `B = [r, 4096]` for small `r`, then uses `ΔW ≈ AB`. This dramatically reduces trainable parameters while allowing useful adaptation.
+
+12. **At a high level, what are eigenvectors and SVD?**
+    An eigenvector is a direction that a square transformation preserves and only scales: `Av = λv`. SVD factors a matrix as `A = UΣVᵀ`, exposing important directions and their strengths so dimensionality reduction and low-rank approximation become possible.
 
 </details>
+
+## Completion criteria
+
+0.3 is complete when:
+
+- dot product, cosine similarity, matrix transformation, and projection feel intuitive
+- you can reason about `xW + b`, `QKᵀ`, and `PV` by both meaning and shape
+- you can explain orthogonality, rank, low-rank approximation, eigenvectors, and SVD at a conceptual level
+- you can give the LoRA parameter-saving intuition
+- you can answer the 12 exit questions without notes
 
 ## Primary references
 
@@ -341,3 +576,4 @@ Answer without notes.
 - [Dive into Deep Learning — Linear Algebra](https://d2l.ai/chapter_preliminaries/linear-algebra.html)
 - [PyTorch Linear Algebra](https://docs.pytorch.org/docs/stable/linalg.html)
 - [Attention Is All You Need](https://arxiv.org/abs/1706.03762)
+- [LoRA: Low-Rank Adaptation of Large Language Models](https://arxiv.org/abs/2106.09685)

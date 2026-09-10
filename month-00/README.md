@@ -19,7 +19,7 @@ Review classes, inheritance, dataclasses, type hints, function arguments, decora
 ### 0.2 NumPy and Tensor Manipulation — SKIM
 
 - [Lesson: NumPy and Tensor Manipulation](lessons/02-numpy-and-tensor-manipulation.md)
-- Validation: solve the shape, broadcasting, masking, and attention-layout exit test.
+- Validation: complete all five exercises and answer the original 12-question exit test.
 
 - dimensions, indexing, slicing, and boolean masks
 - broadcasting and vectorization
@@ -32,7 +32,7 @@ Review classes, inheritance, dataclasses, type hints, function arguments, decora
 ### 0.3 Linear Algebra for Deep Learning — SKIM / REFRESH
 
 - [Lesson: Linear Algebra for Deep Learning](lessons/03-linear-algebra-for-deep-learning.md)
-- Validation: explain the geometric and tensor-shape reasoning in the exit test.
+- Validation: answer the original 12-question exit test and explain the transformer connection.
 
 - vectors, matrices, tensors, transpose, and matrix multiplication
 - norms, cosine similarity, and projections

@@ -1,125 +1,204 @@
 # 0.2 — NumPy and Tensor Manipulation
 
-The goal is to reason about tensor shapes without trial and error. Transformer code becomes much easier when you can predict the result of an indexing, broadcasting, reshape, or matrix-multiplication operation before running it.
+The goal is tensor fluency: look at a shape and understand what every dimension represents, predict the result of an operation, and manipulate transformer tensors without trial and error.
 
-Examples use NumPy and PyTorch side by side where their behavior is similar.
+This file preserves all 18 lessons, the transformer shape walkthrough, five hands-on exercises, and the 12-question exit test from the roadmap conversation.
+
+**Source conversation:** [Create Month Zero Learning List](https://chatgpt.com/share/6aa28c17-a29c-83ea-ae5b-9202ec5ba987)
+
+**Highest-priority ideas:** shapes, reshape/permute, broadcasting, matrix multiplication, reductions, and masking.
 
 ```python
 import numpy as np
 import torch
 ```
 
-## 1. Tensors, shapes, axes, and data types
+## Lesson 0.2.1 — Shapes, dimensions, and axes
 
-A scalar has no axes, a vector has one, a matrix has two, and a higher-dimensional array is commonly called a tensor.
+A scalar has no axes, a vector has one, a matrix has two, and higher-dimensional arrays are commonly called tensors.
 
-```python
-scalar = torch.tensor(3.0)                         # shape: []
-vector = torch.tensor([1.0, 2.0, 3.0])           # shape: [3]
-matrix = torch.zeros(2, 3)                        # shape: [2, 3]
-batch = torch.zeros(4, 16, 768)                   # shape: [4, 16, 768]
+```text
+scalar:     []
+vector:     [D]
+matrix:     [N, D]
+3D tensor:  [B, N, D]
+4D tensor:  [B, H, N, D]
 ```
 
-For the batch above, a useful interpretation is `[batch, sequence, embedding]`:
-
-- axis 0 contains 4 examples
-- axis 1 contains 16 token positions
-- axis 2 contains 768 features per token
-
-Shape alone does not record meaning. Two tensors can both have shape `[4, 16, 768]` while representing different concepts, so good variable names and shape comments matter.
-
-Data types affect precision, memory, and valid operations:
+In NumPy and PyTorch:
 
 ```python
-token_ids = torch.tensor([12, 5, 91], dtype=torch.long)
-activations = torch.randn(3, 768, dtype=torch.float32)
-mask = torch.tensor([True, True, False], dtype=torch.bool)
+scalar = torch.tensor(3.0)
+vector = torch.tensor([1.0, 2.0, 3.0])
+matrix = torch.zeros(2, 3)
+x = torch.zeros(32, 128, 768)
+
+print(x.shape)   # torch.Size([32, 128, 768])
+print(x.ndim)    # 3
+print(x.numel()) # 32 * 128 * 768
 ```
 
-Token IDs are integers, activations are floating point, and masks are Boolean. In PyTorch, a tensor also belongs to a device such as CPU, CUDA, or MPS.
+Interpret `x.shape == [32, 128, 768]` as:
 
-## 2. Creating arrays and tensors
-
-```python
-np.zeros((2, 3))
-np.ones((2, 3))
-np.arange(6).reshape(2, 3)
-
-torch.zeros(2, 3)
-torch.ones(2, 3)
-torch.arange(6).reshape(2, 3)
-torch.randn(2, 3)
+```text
+32   = batch size
+128  = sequence length
+768  = embedding dimension
 ```
 
-When creating a tensor from another tensor, preserve its device and dtype when appropriate:
+- **shape** gives the length of every axis
+- **ndim** gives the number of axes
+- **size** can mean the length of one dimension; in PyTorch, `x.size()` returns the full shape
+- **numel** gives the total number of elements
+
+Shape alone does not record meaning. Two tensors can have the same shape and represent different concepts, so name tensors and document axes clearly.
+
+## Lesson 0.2.2 — Indexing and slicing
+
+Indexing selects parts of a tensor.
 
 ```python
-bias = torch.zeros_like(activations)
+x = torch.randn(32, 128, 768)
+
+x[0]          # [128, 768]: first batch item
+x[:, 0]       # [32, 768]: first token from every batch item
+x[:, :, 0]    # [32, 128]: first feature
+x[0:4]        # [4, 128, 768]
+x[:, 10:20]   # [32, 10, 768]
+x[:, 0, :]    # [32, 768]
 ```
 
-## 3. Indexing and slicing
+Integer indexing removes an axis, while slicing preserves it:
 
 ```python
-x = torch.arange(24).reshape(2, 3, 4)
-
-x[0]          # shape [3, 4]: first item on axis 0
-x[:, 1]       # shape [2, 4]: item 1 on axis 1 for every batch
-x[:, :, -1]   # shape [2, 3]: last feature
-x[..., -1]    # same result; ... fills the omitted leading axes
-x[:, 1:3, :]  # shape [2, 2, 4]: slice preserves the sliced axis
-x[:, 1, :]    # shape [2, 4]: integer indexing removes that axis
+x[0].shape    # [128, 768]
+x[0:1].shape  # [1, 128, 768]
 ```
 
-That last distinction matters: slicing with `1:2` preserves an axis of length 1, while indexing with `1` removes it.
-
-## 4. Element-wise operations and vectorization
-
-Ordinary arithmetic operates element by element when shapes are compatible.
+Also recognize:
 
 ```python
-x = torch.tensor([1.0, 2.0, 3.0])
-y = torch.tensor([4.0, 5.0, 6.0])
-
-x + y      # [5, 7, 9]
-x * y      # [4, 10, 18], element-wise multiplication
-x**2       # [1, 4, 9]
+x[-1]             # last batch item
+x[..., -1]        # last feature; ... fills omitted leading axes
+x[:, :, [0, 2]]   # select specific features
+x[x > 0]          # Boolean indexing; returns matching values
 ```
 
-Vectorized operations express work over whole tensors. They are clearer and normally much faster than Python loops because optimized native kernels perform the computation.
+For a transformer tensor `[B, N, D]`, `x[:, 0, :]` selects the first-token representation from every sample.
+
+## Lesson 0.2.3 — Reshape, view, and flatten
+
+These operations change tensor organization without changing the total number of elements.
 
 ```python
-# Vectorized squared error
-error = ((predictions - targets) ** 2).mean()
+x = torch.randn(32, 128, 768)
+flat_tokens = x.reshape(32 * 128, 768)
+
+assert flat_tokens.shape == (4096, 768)
+assert x.numel() == flat_tokens.numel()
 ```
 
-## 5. Broadcasting
+The critical rule is:
 
-Broadcasting allows element-wise operations on tensors with different but compatible shapes. Compare dimensions from right to left. Each pair must be equal, or one of them must be `1`, or one shape must have no corresponding leading dimension.
+```text
+product of old dimensions = product of new dimensions
+```
+
+`reshape` may return a view or copy data when needed. PyTorch's `view` requires a compatible memory layout:
 
 ```python
-x = torch.zeros(2, 3, 4)
-bias = torch.arange(4)
+y = x.transpose(1, 2)          # often non-contiguous
+z = y.contiguous().view(32, -1)
+```
+
+`flatten` combines a range of dimensions:
+
+```python
+x.flatten(start_dim=1).shape   # [32, 128 * 768]
+```
+
+Never reshape only to silence an error. First identify what every axis means.
+
+## Lesson 0.2.4 — `-1` shape inference
+
+Use one `-1` to ask NumPy or PyTorch to infer the missing dimension:
+
+```python
+x = torch.randn(32, 128, 768)
+
+x.reshape(-1, 768).shape       # [4096, 768]
+x.reshape(32, 128, -1).shape   # [32, 128, 768]
+```
+
+Only one dimension can be inferred. The known dimensions and total element count must determine it exactly.
+
+This pattern appears constantly when splitting and merging attention heads.
+
+## Lesson 0.2.5 — Transpose and permute
+
+Transpose and permutation reorder axes.
+
+```python
+matrix = torch.randn(4, 8)
+matrix.T.shape                  # [8, 4]
+matrix.transpose(0, 1).shape   # [8, 4]
+```
+
+For higher-dimensional tensors:
+
+```python
+x = torch.randn(2, 3, 4)
+
+x.transpose(1, 2).shape        # [2, 4, 3]: swap two axes
+x.permute(0, 2, 1).shape      # [2, 4, 3]: specify every axis
+x.mT.shape                     # [2, 4, 3]: swap final two axes
+```
+
+For transformer representations:
+
+```text
+[B, N, D] → [B, D, N]
+```
+
+and, after splitting the embedding dimension:
+
+```text
+[B, N, H, Dh] → [B, H, N, Dh]
+```
+
+`reshape` changes how elements are grouped. `permute` changes axis order.
+
+## Lesson 0.2.6 — Broadcasting
+
+Broadcasting lets compatible shapes interact without explicitly copying values.
+
+```python
+x = torch.randn(32, 128, 768)
+bias = torch.randn(768)
 y = x + bias
+
+assert y.shape == (32, 128, 768)
 ```
 
-The shapes align as:
+Conceptually, the 768-value bias is applied to every token in every batch:
 
 ```text
-x:     [2, 3, 4]
-bias:        [4]
-result: [2, 3, 4]
+[32, 128, 768]
++          [768]
+----------------
+[32, 128, 768]
 ```
 
-The four-value bias is applied to every sequence position in every batch item.
-
-Another example:
+Compare dimensions from right to left. Two dimensions are compatible when they are equal or one is `1`. A missing leading dimension behaves like `1`.
 
 ```text
-[2, 3, 4]
-[1, 3, 1]
------------
-[2, 3, 4]
+[32, 128, 768]
+     [128,   1]
+----------------
+[32, 128, 768]
 ```
+
+The second example also works: `1` expands over features and the missing leading dimension expands over the batch.
 
 An incompatible example:
 
@@ -128,121 +207,260 @@ An incompatible example:
       [3]
 ```
 
-The final dimensions `4` and `3` conflict, so the operation fails.
+The final dimensions 4 and 3 conflict.
 
-Broadcasting often avoids copying data, but the resulting operation can still produce a large output. Always reason about the result shape.
+Broadcasting often avoids copying the smaller input, but the operation can still create a large output. Always predict the result shape.
 
-## 6. Reshape, view, flatten, and unsqueeze
+## Lesson 0.2.7 — Element-wise operations
 
-Reshaping changes how elements are grouped without changing their number or order.
-
-```python
-x = torch.arange(24)
-x.reshape(2, 3, 4)       # 2 × 3 × 4 = 24
-x.reshape(6, 4)
-x.reshape(2, -1)         # infer the second dimension: [2, 12]
-```
-
-Useful axis operations:
+Ordinary arithmetic is element-wise when shapes are compatible:
 
 ```python
-y = x.unsqueeze(0)       # add an axis at position 0: [1, 24]
-y.squeeze(0)             # remove axis 0 because its size is 1: [24]
+x = torch.tensor([1.0, 2.0, 3.0])
+y = torch.tensor([4.0, 5.0, 6.0])
 
-batch = torch.zeros(2, 3, 4)
-batch.flatten(start_dim=1)  # preserve batch axis: [2, 12]
+x + y   # [5, 7, 9]
+x - y   # [-3, -3, -3]
+x * y   # [4, 10, 18]
+x / y
+x**2    # [1, 4, 9]
 ```
 
-PyTorch's `view` also changes shape, but it requires compatible memory layout. Operations such as transpose can produce non-contiguous tensors. `reshape` may return a view or make a copy when needed; `contiguous().view(...)` makes that choice explicit.
+`x * y` multiplies corresponding values. It is not matrix multiplication.
 
-Never reshape merely to silence a shape error. First confirm what every axis means.
-
-## 7. Transpose and permutation
-
-Transpose reorders axes; it does not rearrange values arbitrarily.
+Vectorized tensor operations are normally clearer and faster than Python loops:
 
 ```python
-x = torch.zeros(2, 3, 4)
-
-x.transpose(1, 2).shape  # [2, 4, 3]: swap two axes
-x.permute(2, 0, 1).shape # [4, 2, 3]: specify every axis in new order
-x.mT                     # transpose the final two dimensions
+error = ((predictions - targets) ** 2).mean()
 ```
 
-For a matrix, `A.T` changes shape `[m, n]` to `[n, m]`. For batched matrices, PyTorch's `mT` is often safer than reversing every axis.
+## Lesson 0.2.8 — Dot product
 
-## 8. Concatenation and stacking
+For two equal-length vectors:
 
-Concatenation joins existing axes. Stacking creates a new axis.
+```text
+a = [1, 2, 3]
+b = [4, 5, 6]
+
+a · b = 1×4 + 2×5 + 3×6 = 32
+```
+
+In NumPy and PyTorch:
 
 ```python
-a = torch.zeros(2, 3)
-b = torch.ones(2, 3)
+np.dot(np.array([1, 2, 3]), np.array([4, 5, 6]))
 
-torch.cat([a, b], dim=0).shape    # [4, 3]
-torch.cat([a, b], dim=1).shape    # [2, 6]
-torch.stack([a, b], dim=0).shape  # [2, 2, 3]
+a = torch.tensor([1, 2, 3])
+b = torch.tensor([4, 5, 6])
+a @ b
+torch.dot(a, b)
 ```
 
-For `cat`, every dimension except the concatenation dimension must match. For `stack`, all input shapes must match.
+A dot product measures alignment scaled by vector magnitude. Later, a query-key dot product becomes an attention compatibility score.
 
-## 9. Reductions
+## Lesson 0.2.9 — Matrix multiplication
 
-Reductions combine values along one or more axes.
+Suppose:
+
+```text
+X = [N, D]
+W = [D, K]
+```
+
+Then:
 
 ```python
-x = torch.randn(4, 16, 768)
-
-x.mean()                         # scalar
-x.mean(dim=-1).shape             # [4, 16]
-x.mean(dim=1).shape              # [4, 768]
-x.sum(dim=1, keepdim=True).shape # [4, 1, 768]
-x.max(dim=-1).values.shape       # [4, 16]
+Y = X @ W
 ```
 
-`keepdim=True` retains reduced axes with size 1. This often makes later broadcasting easier and less error-prone.
+has shape `[N, K]`. The inner dimensions must match:
 
-## 10. Matrix multiplication
+```text
+[N, D] @ [D, K] → [N, K]
+     matching
+```
 
-Element-wise multiplication and matrix multiplication are different operations.
+Each output entry is a dot product between one row of `X` and one column of `W`.
+
+A neural-network linear layer is an affine transformation:
+
+```text
+Y = XW + b
+```
+
+Transformers use the same operation to create queries, keys, and values:
+
+```text
+Q = XWq
+K = XWk
+V = XWv
+```
+
+## Lesson 0.2.10 — Batched matrix multiplication
+
+Now let every batch item contain its own matrices:
+
+```text
+Q = [B, N, D]
+K = [B, N, D]
+Kᵀ = [B, D, N]
+```
+
+PyTorch can multiply the final two axes for every batch:
 
 ```python
-A = torch.randn(2, 3)
-B = torch.randn(3, 4)
-C = A @ B                         # shape [2, 4]
+scores = torch.matmul(Q, K.transpose(-2, -1))
+# equivalently for exactly 3D inputs:
+scores = torch.bmm(Q, K.transpose(1, 2))
 ```
 
-The inner dimensions must match. Each output entry is a dot product between a row of `A` and a column of `B`.
+The result is:
 
-PyTorch and NumPy treat the final two dimensions as matrices and broadcast preceding dimensions:
+```text
+[B, N, D] @ [B, D, N] → [B, N, N]
+```
+
+That `N × N` matrix contains token-to-token scores for each batch item.
+
+`torch.matmul` supports broadcasting over leading dimensions. `torch.bmm` expects two 3D tensors with the same batch size and does not broadcast.
+
+With attention heads:
 
 ```python
 Q = torch.randn(8, 12, 32, 64)
 K = torch.randn(8, 12, 32, 64)
-scores = Q @ K.transpose(-2, -1) # [8, 12, 32, 32]
+scores = Q @ K.transpose(-2, -1)
+
+assert scores.shape == (8, 12, 32, 32)
 ```
 
-Here the axes represent `[batch, heads, sequence, head_dim]`. Each head compares every query token with every key token.
+## Lesson 0.2.11 — Concatenation versus stacking
 
-## 11. Boolean masks and indexed updates
+Suppose:
 
-```python
-scores = torch.tensor([0.2, -1.0, 0.7, -0.3])
-positive = scores[scores > 0]     # [0.2, 0.7]
+```text
+a.shape = [4, 768]
+b.shape = [4, 768]
 ```
 
-Attention masks usually preserve the full tensor shape and replace disallowed scores before softmax:
+Concatenation extends an existing axis:
 
 ```python
-masked_scores = scores.masked_fill(~allowed, float("-inf"))
+torch.cat([a, b], dim=0).shape  # [8, 768]
+torch.cat([a, b], dim=1).shape  # [4, 1536]
+```
+
+Stacking creates a new axis:
+
+```python
+torch.stack([a, b], dim=0).shape  # [2, 4, 768]
+```
+
+For `cat`, every dimension other than the concatenation dimension must match. For `stack`, all input shapes must match.
+
+## Lesson 0.2.12 — `unsqueeze` and `squeeze`
+
+Add a batch axis to one sequence:
+
+```python
+x = torch.randn(128, 768)
+x = x.unsqueeze(0)
+
+assert x.shape == (1, 128, 768)
+```
+
+Remove that size-one axis:
+
+```python
+x = x.squeeze(0)
+assert x.shape == (128, 768)
+```
+
+`unsqueeze(dim)` inserts a new dimension of size 1. `squeeze(dim)` removes that dimension only when its size is 1.
+
+This appears constantly when moving between one sample and a batch. Prefer naming a dimension in `squeeze`; calling `squeeze()` without a dimension can accidentally remove other meaningful size-one axes.
+
+## Lesson 0.2.13 — Reductions
+
+Reductions combine values along one or more dimensions:
+
+```python
+x = torch.randn(8, 100, 768)
+
+x.sum()                          # scalar
+x.mean()                         # scalar
+x.max()                          # scalar
+x.min()                          # scalar
+x.mean(dim=1).shape              # [8, 768]
+x.max(dim=-1).values.shape       # [8, 100]
+```
+
+For `[B, N, D]`, `mean(dim=1)` averages across tokens and produces `[B, D]`. This is simple mean pooling.
+
+`keepdim=True` preserves the reduced axis with length 1:
+
+```python
+x.mean(dim=1, keepdim=True).shape  # [8, 1, 768]
+```
+
+Keeping the axis is often useful for later broadcasting.
+
+## Lesson 0.2.14 — Boolean masks
+
+```python
+scores = np.array([0.8, 0.1, 0.9])
+mask = scores > 0.5               # [True, False, True]
+selected = scores[mask]           # [0.8, 0.9]
+```
+
+Transformer masks determine:
+
+- which tokens are real rather than padding
+- which positions may attend to one another
+- which future tokens a causal model must hide
+
+Attention masks normally preserve the score tensor and replace disallowed entries before softmax:
+
+```python
+attention_scores = torch.randn(4, 4)
+allowed = torch.tril(torch.ones(4, 4, dtype=torch.bool))
+masked_scores = attention_scores.masked_fill(~allowed, float("-inf"))
 weights = torch.softmax(masked_scores, dim=-1)
 ```
 
-After softmax, positions with negative infinity receive probability zero.
+Disallowed positions receive zero probability after softmax. A row in which every position is masked needs deliberate handling because softmax over all negative infinities is undefined.
 
-## 12. Numerical stability
+## Lesson 0.2.15 — Softmax across a dimension
 
-Exponentials grow quickly. A direct softmax implementation can overflow:
+Suppose attention scores have shape `[B, H, N, N]`:
+
+```python
+weights = torch.softmax(scores, dim=-1)
+```
+
+`dim=-1` normalizes over the final dimension. For each batch, head, and query token, the weights over all key tokens sum to 1.
+
+Always ask:
+
+> Which axis am I normalizing over?
+
+Applying softmax over the wrong axis can return a tensor with the expected shape while giving it the wrong meaning.
+
+## Lesson 0.2.16 — Numerical stability
+
+Computers have finite precision. Large exponentials can overflow:
+
+```python
+np.exp(1000)
+```
+
+A naive softmax is unstable:
+
+```text
+exp(x) / sum(exp(x))
+```
+
+Subtract the largest value before exponentiation:
 
 ```python
 def stable_softmax(x: torch.Tensor, dim: int = -1) -> torch.Tensor:
@@ -251,45 +469,29 @@ def stable_softmax(x: torch.Tensor, dim: int = -1) -> torch.Tensor:
     return exp / exp.sum(dim=dim, keepdim=True)
 ```
 
-Subtracting the maximum does not change the softmax probabilities because the same constant is subtracted from every logit. Use library implementations such as `torch.softmax`, `torch.logsumexp`, and `torch.nn.functional.cross_entropy` in real code because they handle stability carefully.
+The probabilities do not change because the same constant is subtracted from every logit and the common exponential factor cancels.
 
-Avoid adding tiny constants without understanding the operation. Prefer a stable formulation designed for the computation.
+Use library operations such as `torch.softmax`, `torch.logsumexp`, and `torch.nn.functional.cross_entropy` in real code. Mathematically equivalent formulas can behave very differently with finite-precision numbers.
 
-## 13. The transformer head-shape transformation
+## Lesson 0.2.17 — NumPy arrays versus PyTorch tensors
 
-Suppose hidden states have shape `[batch, sequence, embedding]`:
-
-```python
-batch_size = 2
-sequence_length = 10
-embedding_dim = 768
-num_heads = 12
-head_dim = embedding_dim // num_heads  # 64
-
-x = torch.randn(batch_size, sequence_length, embedding_dim)
-```
-
-Split the embedding dimension into heads, then move the head axis before sequence:
+The APIs and tensor concepts are similar:
 
 ```python
-q = x.reshape(batch_size, sequence_length, num_heads, head_dim)
-q = q.transpose(1, 2)
-assert q.shape == (2, 12, 10, 64)
+numpy_array = np.array([1, 2, 3])
+torch_tensor = torch.tensor([1, 2, 3])
+
+numpy_array.reshape(3, 1)
+torch_tensor.reshape(3, 1)
 ```
 
-After attention, reverse the operation:
+PyTorch adds deep-learning capabilities:
 
-```python
-context = q.transpose(1, 2).contiguous()
-context = context.reshape(batch_size, sequence_length, embedding_dim)
-assert context.shape == (2, 10, 768)
-```
+- GPU and accelerator support
+- automatic differentiation
+- neural-network layers and optimizers
 
-The reshape splits or merges feature axes. The transpose changes axis order. Neither operation computes attention by itself.
-
-## 14. NumPy and PyTorch interoperability
-
-On CPU, the libraries can sometimes share memory:
+On CPU, NumPy arrays and PyTorch tensors can share memory:
 
 ```python
 array = np.array([1.0, 2.0, 3.0], dtype=np.float32)
@@ -297,64 +499,261 @@ tensor = torch.from_numpy(array)
 back_to_numpy = tensor.numpy()
 ```
 
-Because memory may be shared, an in-place change through one view can affect the other. Use `.copy()` or `.clone()` when independent storage is required. A tensor requiring gradients must be detached and moved to CPU before conversion:
+An in-place change through one view can affect the other. Use `.copy()` or `.clone()` for independent storage. Before converting a gradient-tracked tensor to NumPy:
 
 ```python
 array = tensor.detach().cpu().numpy()
 ```
 
-## Exit test
+For this roadmap, tensor concepts matter more than memorizing NumPy-specific APIs.
 
-Answer without running the code.
+## Lesson 0.2.18 — Device and dtype awareness
 
-1. What are the shapes of `x[0]`, `x[:, 1]`, and `x[:, 1:2]` when `x.shape == [4, 8, 16]`?
-2. Can shapes `[5, 1, 7]` and `[3, 7]` broadcast? What is the result shape?
-3. Can shapes `[2, 4, 8]` and `[4]` broadcast? Why?
-4. What is the difference between `torch.cat([a, b], dim=0)` and `torch.stack([a, b], dim=0)` for two tensors shaped `[2, 3]`?
-5. If `x.shape == [32, 128, 768]`, what is the shape of `x.mean(dim=1)`? What information did that reduction combine?
-6. If `A.shape == [10, 20]` and `B.shape == [20, 5]`, what is `(A @ B).shape`?
-7. Given `Q` and `K` shaped `[2, 12, 10, 64]`, what is the shape of `Q @ K.transpose(-2, -1)` and what does each final-axis value represent?
-8. Why is subtracting the maximum logit before exponentiation safe in softmax?
-9. Write the two shape operations that convert `[2, 10, 768]` to `[2, 12, 10, 64]`.
-10. Identify the bug:
+Every PyTorch tensor has three fundamental properties:
+
+```text
+shape + dtype + device
+```
 
 ```python
-logits = torch.randn(4, 10)
-normalizer = logits.exp().sum(dim=0)
-probabilities = logits.exp() / normalizer
+token_ids = torch.tensor([12, 5, 91], dtype=torch.int64)
+activations = torch.randn(3, 768, dtype=torch.float32)
+mask = torch.tensor([True, True, False], dtype=torch.bool)
+
+print(activations.dtype)
+print(activations.device)
 ```
+
+Common types include `float32`, `float16`, `bfloat16`, `int64`, and `bool`. Data type affects precision, memory, and which operations are valid.
+
+Move or cast a tensor with `to`:
+
+```python
+x = x.to(device)
+x = x.to(torch.bfloat16)
+```
+
+Tensors involved in one operation generally need compatible devices and dtypes. Token IDs used for embedding lookup are normally integer tensors, while model activations and parameters are floating point.
+
+When creating a related tensor, preserve properties when appropriate:
+
+```python
+bias = torch.zeros_like(activations)
+```
+
+## The most important walkthrough — Transformer shape manipulation
+
+Start with token embeddings:
+
+```text
+X = [B, N, D] = [32, 128, 768]
+```
+
+Suppose there are 12 heads:
+
+```text
+H = 12
+Dh = D / H = 768 / 12 = 64
+```
+
+Split the embedding dimension:
+
+```text
+[B, N, D] → [B, N, H, Dh]
+[32, 128, 768] → [32, 128, 12, 64]
+```
+
+Move the head axis before sequence:
+
+```text
+[B, N, H, Dh] → [B, H, N, Dh]
+[32, 128, 12, 64] → [32, 12, 128, 64]
+```
+
+In PyTorch:
+
+```python
+x = torch.randn(32, 128, 768)
+q = x.reshape(32, 128, 12, 64).permute(0, 2, 1, 3)
+
+assert q.shape == (32, 12, 128, 64)
+```
+
+Queries and keys now have:
+
+```text
+Q  = [32, 12, 128, 64]
+K  = [32, 12, 128, 64]
+Kᵀ = [32, 12, 64, 128]
+```
+
+Matrix multiplication produces:
+
+```text
+[32, 12, 128, 64] @ [32, 12, 64, 128]
+= [32, 12, 128, 128]
+```
+
+The final tensor contains a score between every query token and every key token, separately for every attention head and every batch item.
+
+Reverse the head transformation after attention:
+
+```python
+context = q.permute(0, 2, 1, 3).contiguous()
+context = context.reshape(32, 128, 768)
+```
+
+The reshape splits or merges feature axes. The permutation changes axis order. Neither operation computes attention by itself.
+
+## Hands-on exercises
+
+Complete these five exercises in PyTorch.
+
+### Exercise 1 — Shape manipulation
+
+Create:
+
+```python
+x = torch.randn(32, 128, 768)
+```
+
+Convert it to `[32, 12, 128, 64]` using `reshape` and `permute`. Predict the intermediate shape before running the code.
+
+### Exercise 2 — Batched matrix multiplication
+
+Create `Q` and `K` with shape `[2, 4, 8]`. Calculate `Q @ Kᵀ` and predict the result shape first.
+
+### Exercise 3 — Broadcasting
+
+Given `X = [4, 10, 768]` and `bias = [768]`, calculate `X + bias` and explain why it works.
+
+### Exercise 4 — Reduction
+
+Given `embeddings = [8, 100, 768]`, calculate `embeddings.mean(dim=1)` and explain why the result is `[8, 768]`.
+
+### Exercise 5 — Masking
+
+Create an attention-score matrix, replace disallowed positions with negative infinity, apply softmax over keys, and verify that masked positions receive zero probability.
+
+<details>
+<summary>Show exercise solutions</summary>
+
+### Exercise 1
+
+```python
+x = torch.randn(32, 128, 768)
+x = x.reshape(32, 128, 12, 64)
+x = x.permute(0, 2, 1, 3)
+assert x.shape == (32, 12, 128, 64)
+```
+
+The intermediate shape is `[32, 128, 12, 64]`.
+
+### Exercise 2
+
+```python
+Q = torch.randn(2, 4, 8)
+K = torch.randn(2, 4, 8)
+scores = Q @ K.transpose(-2, -1)
+assert scores.shape == (2, 4, 4)
+```
+
+Each of four queries is compared with four keys.
+
+### Exercise 3
+
+```python
+X = torch.randn(4, 10, 768)
+bias = torch.randn(768)
+result = X + bias
+assert result.shape == (4, 10, 768)
+```
+
+The final dimension matches; missing leading dimensions expand across batch and sequence.
+
+### Exercise 4
+
+```python
+embeddings = torch.randn(8, 100, 768)
+pooled = embeddings.mean(dim=1)
+assert pooled.shape == (8, 768)
+```
+
+The sequence axis is averaged away, leaving one embedding per batch item.
+
+### Exercise 5
+
+```python
+scores = torch.randn(2, 4, 4)
+allowed = torch.tril(torch.ones(4, 4, dtype=torch.bool))
+masked_scores = scores.masked_fill(~allowed, float("-inf"))
+weights = torch.softmax(masked_scores, dim=-1)
+
+assert torch.all(weights.masked_select(~allowed) == 0)
+```
+
+</details>
+
+## Exit test
+
+Answer these quickly without notes:
+
+1. What does `[B, N, D]` mean?
+2. What is the difference between `reshape` and `permute`?
+3. Why can `[32, 128, 768] + [768]` work?
+4. What is the difference between `*` and `@`?
+5. What is the shape of `[10, 768] @ [768, 512]`?
+6. What is the difference between `cat` and `stack`?
+7. What does `unsqueeze(0)` do?
+8. What does `mean(dim=1)` do to `[B, N, D]`?
+9. Why are masks needed in attention?
+10. Why does `Q @ Kᵀ` produce an `N × N` matrix?
+11. How do you transform `[B, N, 768]` into 12 attention heads of dimension 64?
+12. What do `dtype` and `device` mean?
 
 <details>
 <summary>Show answers</summary>
 
 ### Answers
 
-1. `x[0]` is `[8, 16]`; integer indexing removes axis 0. `x[:, 1]` is `[4, 16]`; integer indexing removes axis 1. `x[:, 1:2]` is `[4, 1, 16]`; slicing retains axis 1.
-2. Yes. Aligning from the right gives `[5, 1, 7]` and `[1, 3, 7]`, so the result is `[5, 3, 7]`.
-3. No. The final dimensions are `8` and `4`; neither is `1`, so they are incompatible.
-4. Concatenation extends an existing axis and returns `[4, 3]`. Stacking creates a new axis and returns `[2, 2, 3]`.
-5. The result is `[32, 768]`. It averages the 128 sequence-position vectors, producing one 768-feature vector per batch item.
-6. `[10, 5]`. The shared inner dimension is 20.
-7. `[2, 12, 10, 10]`. For each batch and head, every query position has ten dot-product scores, one for each key position.
-8. Softmax is unchanged by adding or subtracting the same constant from all logits. Algebraically, the common exponential factor cancels between numerator and denominator. Subtracting the maximum makes the largest exponent zero and prevents overflow.
-9. First reshape to `[2, 10, 12, 64]`, then transpose axes 1 and 2:
-
-   ```python
-   q = x.reshape(2, 10, 12, 64).transpose(1, 2)
-   ```
-
-10. The code normalizes along the batch axis because `sum(dim=0)` returns one total for each class across four examples. Classification probabilities normally normalize classes for each example, so it should use the final axis. It also repeats an unstable exponential calculation. Use:
+1. `B` is batch size, `N` is sequence length, and `D` is the feature or embedding dimension.
+2. `reshape` changes how the same elements are grouped into dimensions. `permute` changes the order of the dimensions.
+3. Broadcasting aligns dimensions from the right. The final 768 dimensions match, and the missing leading dimensions behave like ones, so the bias applies to every token and batch item.
+4. `*` performs element-wise multiplication. `@` performs matrix multiplication.
+5. `[10, 512]`; the matching inner dimension 768 is contracted.
+6. `cat` extends an existing dimension. `stack` creates a new dimension.
+7. It inserts a size-one dimension at axis 0. For example, `[128, 768]` becomes `[1, 128, 768]`.
+8. It averages across the `N` sequence positions and returns `[B, D]`.
+9. Masks prevent padding, disallowed positions, or future tokens from receiving attention probability.
+10. With `Q = [N, D]` and `Kᵀ = [D, N]`, matrix multiplication returns `[N, N]`. Entry `(i, j)` scores query token `i` against key token `j`.
+11. Reshape to `[B, N, 12, 64]`, then permute to `[B, 12, N, 64]`:
 
     ```python
-    probabilities = torch.softmax(logits, dim=-1)
+    q = x.reshape(B, N, 12, 64).permute(0, 2, 1, 3)
     ```
 
+12. `dtype` specifies the representation and precision of each value, such as `float32` or `int64`. `device` specifies where tensor storage and computation live, such as CPU or a CUDA GPU.
+
 </details>
+
+## Completion criteria
+
+0.2 is complete when you can:
+
+- predict shapes before running tensor operations
+- distinguish indexing from slicing and element-wise from matrix multiplication
+- explain broadcasting from right to left
+- use reshape, inference with `-1`, transpose, permute, squeeze, and unsqueeze deliberately
+- identify the reduction or softmax axis by meaning
+- apply attention masks before softmax
+- trace `[B, N, D] → [B, H, N, Dh] → [B, H, N, N]`
 
 ## Primary references
 
 - [NumPy: Array fundamentals](https://numpy.org/doc/stable/user/basics.html)
 - [NumPy: Broadcasting](https://numpy.org/doc/stable/user/basics.broadcasting.html)
 - [PyTorch: Tensor views](https://docs.pytorch.org/docs/stable/tensor_view.html)
-- [PyTorch: Tensor semantics](https://docs.pytorch.org/docs/stable/notes/tensor_attributes.html)
+- [PyTorch: Tensor attributes](https://docs.pytorch.org/docs/stable/notes/tensor_attributes.html)
 - [PyTorch: Broadcasting semantics](https://docs.pytorch.org/docs/stable/notes/broadcasting.html)
+- [PyTorch: `matmul`](https://docs.pytorch.org/docs/stable/generated/torch.matmul.html)
+- [PyTorch: `softmax`](https://docs.pytorch.org/docs/stable/generated/torch.nn.functional.softmax.html)
