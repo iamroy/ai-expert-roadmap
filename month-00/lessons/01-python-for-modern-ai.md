@@ -198,20 +198,20 @@ At a conceptual level, distinguish async I/O, threads, and processes:
 
 ## Exit test
 
-Explain every marked concept in this program without looking up Python syntax:
+Explain the concepts in this program without looking up Python syntax:
 
 ```python
 from dataclasses import dataclass
 import os
 
 @dataclass
-class ModelConfig:                         # dataclass and type hints
+class ModelConfig:
     model_name: str
-    temperature: float = 0.7              # default value
+    temperature: float = 0.7
 
-class ModelRunner:                         # class
+class ModelRunner:
     def __init__(self, config: ModelConfig):
-        self.config = config              # instance attribute
+        self.config = config
 
     async def generate(self, prompts: list[str]) -> list[str]:
         results = []
@@ -233,6 +233,26 @@ config = ModelConfig(
 
 If the code feels straightforward, 0.1 is complete.
 
+<details>
+<summary>Show answer guide</summary>
+
+### Answer guide
+
+- `@dataclass` generates standard methods such as `__init__` from the declared fields.
+- `model_name: str` and `temperature: float` are type hints. `0.7` is the default value for `temperature`.
+- `ModelRunner` is a class. Its `__init__` method is the constructor used when a runner is created.
+- `self.config = config` stores the supplied configuration as an instance attribute.
+- `generate` and `call_model` are asynchronous methods because they use `async def`.
+- `prompts: list[str]` means a list of strings; `-> list[str]` describes a list-of-strings return value.
+- The `for` loop processes each prompt and appends each result to a list.
+- `await` pauses this coroutine until `call_model` completes while allowing the event loop to run other work.
+- `**kwargs` collects extra keyword arguments in a dictionary. Here it receives `{"temperature": 0.7}` unless the configuration value changes.
+- `os.getenv("MODEL_NAME", "my-model")` reads an environment variable and uses `"my-model"` if it is absent.
+- Creating `ModelConfig` does not create a `ModelRunner`; the two classes have separate responsibilities.
+- The snippet defines asynchronous work but does not execute it. A caller must create a runner and await `runner.generate(...)` inside an event loop.
+
+</details>
+
 ## Primary references
 
 - [The Python Tutorial](https://docs.python.org/3/tutorial/)
@@ -241,4 +261,3 @@ If the code feels straightforward, 0.1 is complete.
 - [Logging](https://docs.python.org/3/library/logging.html)
 - [asyncio](https://docs.python.org/3/library/asyncio.html)
 - [Virtual Environments and Packages](https://docs.python.org/3/tutorial/venv.html)
-

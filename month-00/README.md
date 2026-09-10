@@ -18,6 +18,9 @@ Review classes, inheritance, dataclasses, type hints, function arguments, decora
 
 ### 0.2 NumPy and Tensor Manipulation — SKIM
 
+- [Lesson: NumPy and Tensor Manipulation](lessons/02-numpy-and-tensor-manipulation.md)
+- Validation: solve the shape, broadcasting, masking, and attention-layout exit test.
+
 - dimensions, indexing, slicing, and boolean masks
 - broadcasting and vectorization
 - reshape/view, transpose/permutation
@@ -27,6 +30,9 @@ Review classes, inheritance, dataclasses, type hints, function arguments, decora
 - shape transition: `[batch, sequence, embedding]` → `[batch, heads, sequence, head_dim]`
 
 ### 0.3 Linear Algebra for Deep Learning — SKIM / REFRESH
+
+- [Lesson: Linear Algebra for Deep Learning](lessons/03-linear-algebra-for-deep-learning.md)
+- Validation: explain the geometric and tensor-shape reasoning in the exit test.
 
 - vectors, matrices, tensors, transpose, and matrix multiplication
 - norms, cosine similarity, and projections
@@ -167,4 +173,3 @@ Move to Month 1 after you can trace:
 `text → tokens → token IDs → embeddings → tensor operations → neural network → logits → softmax → loss → backpropagation → optimizer update`
 
 You should also be able to connect traditional ML/CV representation learning to embeddings, attention, and transformers.
-
