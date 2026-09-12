@@ -24,9 +24,9 @@ Each month will contain:
 | Module | Theme | Status |
 |---|---|---|
 | [Month 00](month-00/README.md) | AI Engineering Prerequisite Review | In progress |
-| Month 01 | Foundation Models & LLM Internals | Planned |
-| Month 02 | Training, Fine-Tuning & Post-Training | Planned |
-| Month 03 | Prompting, Context & Structured Generation | Planned |
+| [Month 01](month-01/README.md) | Foundation Models & LLM Internals | Learning material ready |
+| Month 02 | Prompting, Context Engineering & Structured Generation | Planned |
+| Month 03 | Training, Fine-Tuning & Post-Training | Planned |
 | Month 04 | Embeddings, Retrieval & Vector Search | Planned |
 | Month 05 | Advanced RAG & Knowledge Systems | Planned |
 | Month 06 | Agents & Agentic Architectures | Planned |
@@ -44,4 +44,3 @@ Each month will contain:
 - Store runnable work under the month's `exercises/` or `project/` directory.
 - Prefer primary documentation and papers over framework-specific tutorials.
 - Never store API keys, credentials, private datasets, or large model artifacts in Git.
-

@@ -1,0 +1,126 @@
+# 1.8 — Scaling & Foundation Models
+
+**Depth: LEARN**
+
+**Goal:** reason about parameters, data, compute, and deployment together without treating model size as a substitute for evidence.
+
+[Month 1 roadmap](../README.md) · [Previous: Context Windows](07-context-windows-and-limits.md) · [Next: Month 1 Project](../project/tiny-gpt/README.md)
+
+## Lesson 1.8.1 — What makes a model a foundation model?
+
+A foundation model is broadly pretrained and can support a range of downstream tasks through adaptation or conditioning. The term describes its role and transfer potential, not a fixed architecture or minimum parameter threshold. It can be a language, vision, multimodal, or other model.
+
+For language models, large-scale next-token training learns reusable representations and continuation patterns. [Few-shot language-model experiments](https://arxiv.org/abs/2005.14165) illustrate adapting behavior through examples in context without updating parameters. Fine-tuning changes weights; prompting changes the input. Neither guarantees that all desired behavior is reliable.
+
+A tiny GPT in this month's project uses related computation but is trained on a tiny corpus for mechanistic learning. Completing that project does not create a broadly capable foundation model.
+
+## Lesson 1.8.2 — Three separate scale variables
+
+| Variable | Meaning | Common misunderstanding |
+|---|---|---|
+| Parameters `N` | Learned weights in the model | More weights guarantee better performance on every task |
+| Training tokens `D` | Token instances processed during training | Every token is unique, equally useful, or high quality |
+| Compute `C` | Arithmetic and hardware effort | Equal FLOPs mean equal wall-clock time or monetary cost |
+
+Here `D` means training-token count, not the model width used in earlier lessons. Keep notation local and explicit.
+
+Parameters provide capacity; data provides learning signal; compute pays for processing that data through the model. Repeated tokens count as compute even though they do not provide the same diversity as new high-quality data. Duplicates, contamination, domain balance, tokenizer choice, and training stability affect the useful signal.
+
+A larger model can be undertrained for its capacity. A smaller model trained on more useful data can outperform a larger one with a worse allocation. Conversely, too little capacity can limit the patterns a model represents even with substantial data.
+
+## Lesson 1.8.3 — Scaling laws describe empirical trends
+
+[Scaling-law studies](https://arxiv.org/abs/2001.08361) fit smooth relationships between language-model loss and scale over measured regimes. A schematic form is:
+
+```text
+loss(N, D) ≈ irreducible term + A/N^alpha + B/D^beta
+```
+
+The coefficients and exponents depend on the study and assumptions. This is a model of observed behavior, not an equation that predicts every downstream task or every architecture without calibration.
+
+Power-law improvement has diminishing absolute returns: multiplying resources can yield a progressively smaller loss reduction. Loss trends can help estimate a training budget, but downstream success also depends on how the benchmark maps model outputs into scores. A sharp change in an exact-match task score need not imply a discontinuity in all underlying capabilities.
+
+Use small-scale experiments to check data quality, optimization, and scaling direction before a costly run. Extrapolation far beyond a measured range carries substantial uncertainty.
+
+## Lesson 1.8.4 — Compute-optimal training
+
+For a conventional dense decoder, a frequently used rough training estimate is:
+
+```text
+training FLOPs ≈ 6 × parameter_count × training_token_count
+```
+
+This approximates dominant parameter-matrix work in forward and backward passes. It omits important context-dependent attention costs and implementation details. It is less direct for sparse expert models and unsuitable as an exact hardware runtime estimate.
+
+At a fixed `N×D` budget, a larger model trained on fewer tokens and a smaller model trained on more tokens can consume similar approximate compute. [Chinchilla's study](https://arxiv.org/abs/2203.15556) found that jointly scaling model size and training data more evenly improved allocation in its experimental regime. Its result is an empirical guide, not a permanent rule that every model should train on exactly one fixed token-to-parameter ratio.
+
+For example, doubling `N` while halving `D` preserves the approximate product. Whether quality improves depends on where the original model sat relative to the fitted optimum, along with data and optimization quality.
+
+## Lesson 1.8.5 — Training optimality versus lifetime cost
+
+The allocation minimizing pretraining loss for a training budget need not minimize total system cost. A smaller model trained for longer may be attractive when it will serve a very large number of requests. Inference happens repeatedly; one-time training and ongoing serving costs should be considered separately.
+
+At deployment, weight memory, KV cache, batch size, context length, output length, and hardware all matter. A rough unquantized FP16 weight estimate is `2N` bytes. This excludes runtime allocations and cache. Training memory is larger because it can also include gradients, optimizer states, master weights, and activations.
+
+Quantization changes storage and arithmetic formats and can affect quality. MoE separates total stored parameters from active computation. Neither makes the parameter count alone an adequate capacity or cost estimate.
+
+## Lesson 1.8.6 — Why larger models often improve, and where that stops helping
+
+More capacity and appropriate training can model richer dependencies and reuse patterns across more tasks. Better pretraining loss often accompanies stronger downstream capability, but correlations are not guarantees. Domain mismatch, rare factual requirements, weak instruction tuning, context misuse, and evaluation leakage can dominate a specific application.
+
+For production model selection, establish a task-specific acceptance threshold first. Compare candidates on held-out examples, difficult slices, latency, cost, context needs, structured-output behavior, and operational constraints. A smaller model with well-selected evidence may outperform a larger model with irrelevant context on a particular workflow. That is an experiment to run, not a universal claim.
+
+## Lesson 1.8.7 — An architecture review worksheet
+
+When looking at a model report or configuration, record:
+
+- Model family and objective; exact checkpoint and tokenizer versions.
+- Dense or MoE; total and active parameters; layer/width/head configuration.
+- Training-token accounting, data coverage, and known evaluation limitations.
+- Context training range and actual tested context quality.
+- Weight precision, cache estimate, and target serving concurrency.
+- Held-out task quality and the latency/cost measurement conditions.
+
+Then explain which observations support your choice and which claims remain untested. This connects Month 1's internal mechanics to later inference systems, evaluation, and platform architecture modules.
+
+## Checkpoint
+
+1. Why are parameter count and training-token count different resources?
+2. What does a scaling law predict directly, and what needs separate validation?
+3. Why might a heavily used service favor a smaller model trained longer?
+4. Does a tiny model's falling loss establish that it has general-purpose reasoning ability?
+
+<details>
+<summary>Show answers</summary>
+
+1. Parameters are learned capacity; tokens are training instances processed to fit that capacity. Both consume compute, and their balance matters.
+2. A fitted law predicts an empirical quantity such as loss within its assumptions/range. Application accuracy, safety, latency, cost, and out-of-distribution behavior need direct tests.
+3. Higher one-time training cost may be offset by lower per-request inference cost over many requests, provided quality requirements are met.
+4. No. It may merely memorize or model narrow local patterns. Generalization and reasoning require appropriate independent tasks and controls.
+
+</details>
+
+## Hands-on exercises
+
+1. Estimate dense training FLOPs for 100 million parameters and 2 billion tokens. Compare with 200 million parameters trained on 1 billion tokens. State what cannot be concluded from the equality.
+2. Estimate FP16 weight-only storage for 7 billion parameters in decimal GB and binary GiB. List additional memory a serving system needs.
+3. Train two widths in the tiny GPT project under a fixed approximate token-processing budget. Design a report that distinguishes undertraining, overfitting, and genuine held-out improvement.
+
+<details>
+<summary>Show exercise solutions</summary>
+
+1. Both give `6×10^8×2×10^9 = 1.2×10^18` FLOPs under the approximation. Equal estimated compute does not establish equal quality, runtime, memory, or cost; attention and implementation differences are omitted.
+2. `7×10^9×2 = 14×10^9` bytes: 14 GB, about 13.04 GiB. Add KV cache, temporary activations/workspaces, allocator overhead, and other service allocations.
+3. Count parameters and actual processed tokens, record seeds and wall time, use the same held-out split/tokenizer, and plot train/validation loss against processed tokens and estimated compute. Rising validation loss with falling train loss suggests overfitting; slow improvement in both may suggest inadequate training or optimization issues. Repeat runs and avoid drawing foundation-model scaling conclusions from two tiny models on toy data.
+
+</details>
+
+## Completion criteria
+
+Use parameters, tokens, compute, memory, and task quality as separate quantities. Explain compute-optimal allocation and why deployment economics can favor a different choice.
+
+## Primary references
+
+- [Language Models are Few-Shot Learners](https://arxiv.org/abs/2005.14165).
+- [Scaling Laws for Neural Language Models](https://arxiv.org/abs/2001.08361).
+- [Training Compute-Optimal Large Language Models](https://arxiv.org/abs/2203.15556).
