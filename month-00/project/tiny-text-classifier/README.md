@@ -58,3 +58,22 @@ Record:
 6. What information does mean pooling discard?
 7. What would a transformer change in this pipeline?
 
+<details>
+<summary>Show answers</summary>
+
+1. The collator inserts padding while building equal-length batches. A Boolean mask excludes padded positions from the pooling numerator and denominator; an all-padding row must be rejected or handled explicitly.
+2. Cross-entropy expects unrestricted logits and applies a stable log-softmax internally. Probabilities are useful at the prediction boundary, not as its training input.
+3. For one-hot labels, it minimizes the negative log probability of the correct class across training examples.
+4. Trainable embedding and linear-layer parameters receive gradients. Only embedding rows used in the batch receive sparse input signal; token IDs and labels are integers and do not receive gradients.
+5. AdamW combines moving gradient and squared-gradient estimates for adaptive updates, then applies decoupled parameter decay according to configured parameter groups.
+6. It discards token order and represents different sequences with the same average similarly. Masking preserves length correctness but does not recover order.
+7. A transformer would replace or augment simple pooling with contextual token interactions. Attention would make each token representation depend on other allowed tokens before pooling or selecting a classification representation.
+
+</details>
+
+## Recommended supporting lessons
+
+- [PyTorch Fundamentals](../../lessons/08-pytorch-fundamentals.md)
+- [Representation Learning](../../lessons/10-representation-learning.md)
+- [Basic NLP Concepts](../../lessons/12-basic-nlp-concepts.md)
+- [Software Engineering for AI](../../lessons/17-software-engineering-for-ai.md)

@@ -23,7 +23,7 @@ Each month will contain:
 
 | Module | Theme | Status |
 |---|---|---|
-| [Month 00](month-00/README.md) | AI Engineering Prerequisite Review | In progress |
+| [Month 00](month-00/README.md) | AI Engineering Prerequisite Review | Learning material ready |
 | [Month 01](month-01/README.md) | Foundation Models & LLM Internals | Learning material ready |
 | Month 02 | Prompting, Context Engineering & Structured Generation | Planned |
 | Month 03 | Training, Fine-Tuning & Post-Training | Planned |
