@@ -104,6 +104,26 @@ Use a bounded context policy. Explain whether it recomputes the last window or u
 
 **Deliverable:** at least five fixed prompts; three seeds per stochastic mode; output length, repeated-fragment observations, and one failure example per mode. Compare outputs from the same checkpoint and state whether speed measurements include prefill.
 
+**Expect modes to coincide, and be able to say why.** On a small model fitted to a narrow corpus, `temperature` and `top_k` frequently produce byte-identical text at the same seed. That is not a bug in your sampler. It happens because the trained distribution is extremely peaked, so the top-k cut removes only tokens that had almost no chance of being drawn, and the same seed then yields the same draw. Measure it rather than assuming either way:
+
+```python
+import torch
+
+model.eval()
+ids = torch.tensor([encode("the cat ")], dtype=torch.long)
+mass = []
+for _ in range(60):
+    logits, _ = model(ids[:, -model.cfg.context:])
+    distribution = sampling_probs(logits[0, -1], temperature=1.0, top_k=None, top_p=1.0)
+    mass.append(distribution.sort(descending=True).values[:20].sum().item())
+    ids = torch.cat((ids, distribution.argmax().view(1, 1)), dim=1)
+
+print(f"mean probability mass inside the top 20: {sum(mass) / len(mass):.6f}")
+print(f"minimum across 60 steps:                 {min(mass):.6f}")
+```
+
+The reference run gives a mean near 0.9992 and a minimum near 0.9952, so `top_k=20` is discarding roughly 0.1% of the mass. Report that measurement alongside the identical outputs; it is the honest finding, and it is the same reasoning lesson 1.6 asks for when it warns against reading random variation as a quality difference. If you want the modes to visibly diverge, raise the temperature, lower `k`, or use a less thoroughly fitted checkpoint — and say which you did.
+
 ## Milestone 6 — Required diagnostic tests
 
 Implement tests for these behavioral properties:

@@ -21,6 +21,53 @@ Serving systems may also impose separate input/output limits or account for addi
 
 Count the final serialized request with its actual tokenizer. User-visible text alone omits message wrappers, special tokens, and tool schemas. Reserve output capacity before filling the input window. Hitting the capacity limit mid-response can truncate the result even when the prompt was accepted.
 
+Doing that accounting explicitly is the difference between a system that degrades gracefully and one that truncates mid-answer in production:
+
+```python
+def plan_context(window, system, tools, history, retrieved_chunk, max_output, reserve=0.1):
+    overhead = int(window * reserve)          # wrappers, special tokens, safety margin
+    fixed = system + tools + history + overhead + max_output
+    room = window - fixed
+    chunks = max(0, room // retrieved_chunk)
+    return {
+        "window": window, "system": system, "tools": tools, "history": history,
+        "overhead+safety": overhead, "output reserved": max_output,
+        "left for retrieval": room, "chunks that fit": chunks,
+        "unused": room - chunks * retrieved_chunk,
+    }
+
+
+for window in (8_192, 32_768, 128_000):
+    plan = plan_context(window, system=600, tools=1_400, history=2_500,
+                        retrieved_chunk=700, max_output=1_000)
+    print(f"window {window:>7,}: retrieval room {plan['left for retrieval']:>7,} "
+          f"-> {plan['chunks that fit']:>3} chunks of 700")
+
+print()
+for key, value in plan_context(8_192, 600, 1_400, 2_500, 700, 1_000).items():
+    print(f"  {key:<20} {value:>8,}")
+```
+
+```text
+window   8,192: retrieval room   1,873 ->   2 chunks of 700
+window  32,768: retrieval room  23,992 ->  34 chunks of 700
+window 128,000: retrieval room 109,700 -> 156 chunks of 700
+
+  window                  8,192
+  system                    600
+  tools                   1,400
+  history                 2,500
+  overhead+safety           819
+  output reserved         1,000
+  left for retrieval      1,873
+  chunks that fit             2
+  unused                    473
+```
+
+The 8k row is the one worth sitting with. An 8,192-token window sounds generous, but a realistic system prompt, tool schemas, and conversation history consume three quarters of it before a single retrieved document is added — leaving room for two chunks. A naive retriever configured to return the top 5 would overflow, and depending on the framework that either errors or silently drops chunks, usually the last ones.
+
+Two implications for Month 4 and 5. Growing the window from 8k to 32k multiplies retrieval room by 13×, not by 4×, because the fixed overhead is paid once. And the accounting must run *before* retrieval, so `k` adapts to remaining room instead of being a constant that happens to fit during development.
+
 ## Lesson 1.7.2 — Where quadratic attention comes from
 
 For one dense self-attention head over `T` positions, the score matrix has `T²` entries. For `B` batches and `H` heads, materializing the scores requires `BHT²` elements. QK and attention-times-V arithmetic scales roughly as `O(BT²D)` across heads; dense feature projections and FFNs also contribute, typically with terms proportional to `BTD²`.
@@ -91,6 +138,59 @@ Build synthetic documents with a fact whose answer you know. Vary total length a
 Measure answer correctness, evidence identification, refusal/abstention, input/output tokens, latency, and run-to-run variation. Include a no-evidence case to detect guessing. Split development templates from evaluation templates so tuning the prompt does not merely overfit a benchmark.
 
 A useful result table has one row per length and evidence-position slice. Reporting only the overall mean may hide a severe middle-position failure. Document which model/tokenizer revision and prompt format were tested; position sensitivity can change with both.
+
+The analysis side is small enough to write once and reuse. Every cell needs a confidence interval, because per-slice sample sizes are small enough that noise imitates a finding:
+
+```python
+import math
+import random
+from collections import defaultdict
+
+
+def summarize(results):
+    by_slice = defaultdict(lambda: [0, 0])
+    for r in results:
+        cell = by_slice[(r["length"], r["position"])]
+        cell[0] += int(r["correct"])
+        cell[1] += 1
+
+    rows = []
+    for (length, position), (hits, n) in sorted(by_slice.items()):
+        p = hits / n
+        half_width = 1.96 * math.sqrt(p * (1 - p) / n)      # normal approximation
+        rows.append((length, position, p, half_width, n))
+    return rows
+
+
+random.seed(0)
+underlying = {("4k", "start"): 0.95, ("4k", "middle"): 0.92, ("4k", "end"): 0.96,
+              ("32k", "start"): 0.90, ("32k", "middle"): 0.55, ("32k", "end"): 0.88}
+results = [{"length": length, "position": position, "correct": random.random() < p}
+           for (length, position), p in underlying.items() for _ in range(60)]
+
+print(f"{'length':>7} {'position':>9} {'accuracy':>9} {'95% CI':>16} {'n':>4}")
+for length, position, p, half_width, n in summarize(results):
+    print(f"{length:>7} {position:>9} {p:>9.3f}   +/- {half_width:.3f}      {n:>4}")
+
+overall = sum(r["correct"] for r in results) / len(results)
+print(f"\noverall accuracy: {overall:.3f}  <- hides the 32k middle result")
+```
+
+```text
+ length  position  accuracy           95% CI    n
+    32k       end     0.817   +/- 0.098        60
+    32k    middle     0.583   +/- 0.125        60
+    32k     start     0.950   +/- 0.055        60
+     4k       end     0.933   +/- 0.063        60
+     4k    middle     0.917   +/- 0.070        60
+     4k     start     0.950   +/- 0.055        60
+
+overall accuracy: 0.858  <- hides the 32k middle result
+```
+
+The simulated data has a real middle-of-context failure at 32k and none at 4k. An 85.8% headline looks like a mostly-working system; the slice table shows a 0.583 cell that a user would experience as the model ignoring the middle of their document. This is why the deliverable is a table, not a number.
+
+Note the interval widths. At 60 trials per cell the 95% interval spans roughly ±0.10, so a 4-point difference between two slices is not evidence of anything. Size each cell for the effect you need to detect before running the experiment, and treat the intervals as a lower bound on uncertainty, since repeated templates and shared distractors make trials less independent than this formula assumes.
 
 ## Lesson 1.7.7 — Production implications and the Month 2 bridge
 

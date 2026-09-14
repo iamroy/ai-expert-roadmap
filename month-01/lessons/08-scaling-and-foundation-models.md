@@ -93,6 +93,39 @@ For example, doubling `N` while halving `D` preserves the approximate product. W
 
 The allocation minimizing pretraining loss for a training budget need not minimize total system cost. A smaller model trained for longer may be attractive when it will serve a very large number of requests. Inference happens repeatedly; one-time training and ongoing serving costs should be considered separately.
 
+The crossover is computable. Training costs roughly `6ND` once; generation costs roughly `2N` FLOPs per token, forever:
+
+```python
+def training_flops(params, tokens):
+    return 6 * params * tokens
+
+
+def inference_flops(params, tokens):
+    return 2 * params * tokens
+
+
+for params in (7e9, 70e9):
+    train = training_flops(params, 20 * params)          # Chinchilla-style allocation
+    print(f"{params / 1e9:5.0f}B: training {train:.2e} FLOPs")
+    for daily_tokens in (1e9, 1e11):
+        serving = inference_flops(params, daily_tokens * 365)
+        print(f"        at {daily_tokens:.0e} tokens/day -> serving {serving:.2e} FLOPs/year "
+              f"({serving / train:5.2f}x training)")
+```
+
+```text
+    7B: training 5.88e+21 FLOPs
+        at 1e+09 tokens/day -> serving 5.11e+21 FLOPs/year ( 0.87x training)
+        at 1e+11 tokens/day -> serving 5.11e+23 FLOPs/year (86.90x training)
+   70B: training 5.88e+23 FLOPs
+        at 1e+09 tokens/day -> serving 5.11e+22 FLOPs/year ( 0.09x training)
+        at 1e+11 tokens/day -> serving 5.11e+24 FLOPs/year ( 8.69x training)
+```
+
+At low volume, training dominates and compute-optimal allocation is the right objective. At high volume it inverts completely: a 7B model serving 100B tokens a day burns 87× its own training cost every year. Once serving dominates by that margin, spending *more* than the compute-optimal amount on training — a smaller model trained on far more tokens than the 20:1 ratio suggests — lowers total cost, because every FLOP saved per token is paid back billions of times.
+
+That is the reasoning behind widely deployed small models trained far past their compute-optimal point. Note what the arithmetic does not include: memory bandwidth, which often binds decode before FLOPs do (1.6.2), utilization well below peak, and the KV cache (1.5). Use this to see the shape of the trade-off, not to quote a budget.
+
 At deployment, weight memory, KV cache, batch size, context length, output length, and hardware all matter. A rough unquantized FP16 weight estimate is `2N` bytes. This excludes runtime allocations and cache. Training memory is larger because it can also include gradients, optimizer states, master weights, and activations.
 
 Quantization changes storage and arithmetic formats and can affect quality. MoE separates total stored parameters from active computation. Neither makes the parameter count alone an adequate capacity or cost estimate.
@@ -113,6 +146,51 @@ When looking at a model report or configuration, record:
 - Context training range and actual tested context quality.
 - Weight precision, cache estimate, and target serving concurrency.
 - Held-out task quality and the latency/cost measurement conditions.
+
+Several of those lines are derivable from the configuration rather than looked up, and computing them is the fastest way to catch a spec that does not add up:
+
+```python
+def count_parameters(layers, width, ffn_hidden, vocab,
+                     query_heads, kv_heads, head_dim, gated=True):
+    attention = (width * query_heads * head_dim          # Q
+                 + 2 * width * kv_heads * head_dim       # K and V, shrunk by GQA
+                 + query_heads * head_dim * width)       # output projection
+    ffn = (3 if gated else 2) * width * ffn_hidden       # SwiGLU uses three matrices
+    norms = 2 * width
+    per_layer = attention + ffn + norms
+
+    return {
+        "per layer": per_layer,
+        "all layers": layers * per_layer,
+        "embeddings": vocab * width,
+        "total (untied)": layers * per_layer + 2 * vocab * width,
+        "total (tied)": layers * per_layer + vocab * width,
+    }
+
+
+config = dict(layers=24, width=1024, ffn_hidden=2816, vocab=32000,
+              query_heads=16, kv_heads=4, head_dim=64)
+counts = count_parameters(**config)
+for name, value in counts.items():
+    print(f"{name:<16} {value:>14,}")
+
+print(f"\nembeddings as a share of the tied total: "
+      f"{config['vocab'] * config['width'] / counts['total (tied)']:.1%}")
+```
+
+```text
+per layer            11,274,240
+all layers          270,581,760
+embeddings           32,768,000
+total (untied)      336,117,760
+total (tied)        303,349,760
+
+embeddings as a share of the tied total: 10.8%
+```
+
+This is the configuration from 1.5.6, so you can check it against the cache arithmetic there and see the two costs are independent: GQA shrinks K and V here *and* shrinks the cache, while the vocabulary projection affects parameters and compute but never the cache.
+
+Two audit habits come out of this. Tying embeddings changes the reported total by 33M — 10.8% of the model — so "how many parameters" is ambiguous until you know whether input and output embeddings are shared. And at small widths the embedding table is a large fraction of the model, which is why parameter count alone is a poor proxy for capability when comparing across vocabulary sizes.
 
 Then explain which observations support your choice and which claims remain untested. This connects Month 1's internal mechanics to later inference systems, evaluation, and platform architecture modules.
 
