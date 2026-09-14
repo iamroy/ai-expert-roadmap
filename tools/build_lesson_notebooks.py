@@ -55,7 +55,7 @@ SECTION_RESOURCES: dict[str, dict[str, str]] = {
         ),
     },
     "month-00/lessons/04-probability-and-statistics.md": {
-        "## Entropy, cross-entropy, and KL divergence": (
+        "## 0.4.4 — Entropy, cross-entropy, and KL divergence": (
             "> **Read next:** The [Deep Learning textbook's probability chapter]"
             "(https://www.deeplearningbook.org/contents/prob.html) develops entropy and KL "
             "divergence from probability foundations. For implementation details, see "
@@ -64,7 +64,7 @@ SECTION_RESOURCES: dict[str, dict[str, str]] = {
         ),
     },
     "month-00/lessons/05-calculus-for-neural-networks.md": {
-        "## Chain rule and computational graphs": (
+        "## 0.5.3 — The chain rule": (
             "> **Watch and build:** 3Blue1Brown's [gradient descent explanation]"
             "(https://www.youtube.com/watch?v=IHZwWFHWa-w) gives the geometric intuition; "
             "Andrej Karpathy's [micrograd walkthrough]"
@@ -73,7 +73,7 @@ SECTION_RESOURCES: dict[str, dict[str, str]] = {
         ),
     },
     "month-00/lessons/06-neural-network-fundamentals.md": {
-        "## Forward pass, loss, and backward pass": (
+        "## 0.6.3 — The forward pass": (
             "> **Watch:** [But what is a neural network?]"
             "(https://www.youtube.com/watch?v=aircAruvnKk) develops an approachable visual "
             "model of layers and activations. Follow it with the [micrograd walkthrough]"
@@ -82,7 +82,7 @@ SECTION_RESOURCES: dict[str, dict[str, str]] = {
         ),
     },
     "month-00/lessons/07-training-fundamentals.md": {
-        "## SGD, momentum, Adam, and AdamW": (
+        "## 0.7.1 — Optimizers": (
             "> **Read next:** [Adam: A Method for Stochastic Optimization]"
             "(https://arxiv.org/abs/1412.6980) defines the adaptive moment updates. "
             "[Decoupled Weight Decay Regularization]"
@@ -91,7 +91,7 @@ SECTION_RESOURCES: dict[str, dict[str, str]] = {
         ),
     },
     "month-00/lessons/08-pytorch-fundamentals.md": {
-        "## A complete training and validation loop": (
+        "## 0.8.5 — The training loop": (
             "> **Read next:** PyTorch's [Quickstart]"
             "(https://docs.pytorch.org/tutorials/beginner/basics/quickstart_tutorial.html) "
             "shows the same dataset, model, loss, optimizer, train, and evaluation sequence "
@@ -99,7 +99,7 @@ SECTION_RESOURCES: dict[str, dict[str, str]] = {
         ),
     },
     "month-00/lessons/09-deep-learning-architecture-concepts.md": {
-        "## Receptive fields and parameter sharing": (
+        "## 0.9.2 — Receptive fields": (
             "> **Read next:** Use [Deep Residual Learning for Image Recognition]"
             "(https://arxiv.org/abs/1512.03385) as a concrete CNN architecture, then contrast "
             "its spatial inductive bias with [Attention Is All You Need]"
@@ -107,7 +107,7 @@ SECTION_RESOURCES: dict[str, dict[str, str]] = {
         ),
     },
     "month-00/lessons/10-representation-learning.md": {
-        "## From CNN and DINO features to LLM and multimodal embeddings": (
+        "## 0.10.7 — The through-line: CNN features → token embeddings → multimodal": (
             "> **Read and watch:** [CLIP]"
             "(https://arxiv.org/abs/2103.00020) shows a shared image-text embedding space. "
             "Stanford CS224N's [word vectors lecture]"
@@ -116,14 +116,14 @@ SECTION_RESOURCES: dict[str, dict[str, str]] = {
         ),
     },
     "month-00/lessons/11-self-supervised-learning.md": {
-        "## Contrastive learning": (
+        "## 0.11.4 — Contrastive learning": (
             "> **Read next:** [A Simple Framework for Contrastive Learning of Visual "
             "Representations (SimCLR)](https://arxiv.org/abs/2002.05709) is a clean reference "
             "for augmented positive pairs, in-batch negatives, and the contrastive loss."
         ),
     },
     "month-00/lessons/12-basic-nlp-concepts.md": {
-        "## Word2Vec and GloVe": (
+        "## 0.12.6 — Word2Vec, GloVe, and the limits of static vectors": (
             "> **Watch and read:** Stanford CS224N's [word vectors lecture]"
             "(https://www.youtube.com/watch?v=DzpHeXVSC5I) explains prediction-based word "
             "embeddings. Pair it with the original [GloVe paper]"
@@ -132,7 +132,7 @@ SECTION_RESOURCES: dict[str, dict[str, str]] = {
         ),
     },
     "month-00/lessons/13-information-retrieval-fundamentals.md": {
-        "## TF-IDF and BM25": (
+        "## 0.13.3 — From TF-IDF to BM25": (
             "> **Read next:** The free [Introduction to Information Retrieval]"
             "(https://nlp.stanford.edu/IR-book/) develops inverted indexes, TF-IDF, and "
             "ranking evaluation. [The Probabilistic Relevance Framework: BM25 and Beyond]"
@@ -141,7 +141,7 @@ SECTION_RESOURCES: dict[str, dict[str, str]] = {
         ),
     },
     "month-00/lessons/14-basic-data-engineering.md": {
-        "## JSON, JSONL, and Parquet": (
+        "## 0.14.2 — File formats: JSON, JSONL, Parquet, Arrow": (
             "> **Read next:** The [Apache Parquet documentation]"
             "(https://parquet.apache.org/docs/) explains columnar storage and file layout. "
             "The [JSON Lines specification](https://jsonlines.org/) captures the simple "
@@ -149,21 +149,21 @@ SECTION_RESOURCES: dict[str, dict[str, str]] = {
         ),
     },
     "month-00/lessons/15-apis-and-web-fundamentals.md": {
-        "## HTTP request and response": (
+        "## 0.15.1 — HTTP and REST": (
             "> **Read next:** [RFC 9110: HTTP Semantics]"
             "(https://www.rfc-editor.org/rfc/rfc9110) is the authoritative reference for "
             "methods, status codes, headers, representation metadata, and caching semantics."
         ),
     },
     "month-00/lessons/16-linux-containers-and-git.md": {
-        "## Shell, processes, and environment": (
+        "## 0.16.1 — Shell basics": (
             "> **Watch and practice:** MIT's Missing Semester [course overview and shell "
             "lecture](https://www.youtube.com/watch?v=Z56Jmr9Z34Q) demonstrates navigation, "
             "streams, pipes, permissions, and command composition in a real terminal."
         ),
     },
     "month-00/lessons/17-software-engineering-for-ai.md": {
-        "## Testing layers": (
+        "## 0.17.4 — Testing ML code": (
             "> **Read next:** Google's [Software Engineering at Google: Testing Overview]"
             "(https://abseil.io/resources/swe-book/html/ch11.html) explains test scope, "
             "fidelity, and maintainability. Translate its principles to data contracts, "
@@ -171,7 +171,7 @@ SECTION_RESOURCES: dict[str, dict[str, str]] = {
         ),
     },
     "month-00/lessons/18-mlops-fundamentals.md": {
-        "## The lifecycle": (
+        "## 0.18.1 — Experiment tracking": (
             "> **Read next:** [The ML Test Score]"
             "(https://research.google/pubs/the-ml-test-score-a-rubric-for-ml-production-readiness-and-technical-debt-reduction/) "
             "turns production readiness into concrete checks across data, models, pipelines, "

@@ -1,142 +1,459 @@
-# 0.6 — Neural-Network Fundamentals
+# 0.6 Neural-Network Fundamentals — SKIM
 
-**Depth: SKIM**
+Everything in this lesson appears inside a transformer block. The curriculum flags GELU, LayerNorm, and residual connections as the focus, because those three are exactly what a transformer block wraps around attention.
 
-**Goal:** connect layers, activations, losses, and backpropagation into one trainable system, with special attention to GELU, LayerNorm, residual connections, and dropout.
+| | |
+|---|---|
+| **Mode** | SKIM |
+| **Time** | 60–90 minutes, including the exercises |
+| **Assumes** | 0.3 Linear Algebra, 0.4 Probability, 0.5 Calculus |
+| **Used by** | 0.7 Training, 0.8 PyTorch, the tiny text classifier project, Month 1 transformer internals |
 
-[Month 0 roadmap](../README.md) · [Previous: Calculus](05-calculus-for-neural-networks.md) · [Next: Training](07-training-fundamentals.md)
+[Month 0 roadmap](../README.md) · [Previous: Calculus](05-calculus-for-neural-networks.md) · [Next: Training Fundamentals](07-training-fundamentals.md)
 
-## From affine maps to networks
+## Learning objectives
 
-A linear layer computes an affine transformation:
+After this lesson you can:
 
-```text
-y = xW + b
-[B, Din] @ [Din, Dout] + [Dout] → [B, Dout]
-```
+- describe a forward pass through a linear layer and an activation, with shapes
+- explain why nonlinearity is required and how GELU differs from ReLU
+- pick the right loss for a classification or regression task and say what it optimizes
+- explain what initialization, normalization, residual connections, and dropout each fix
+- distinguish underfitting from overfitting and say which lever to reach for
+- write out the structure of a transformer block from its components
+- name what changes between training and evaluation mode
 
-The bias makes it affine rather than strictly linear. Stacking affine maps without nonlinearities collapses to one affine map. An activation lets depth represent more complex functions.
+## How to use this lesson
 
-ReLU uses `max(0,x)`. GELU smoothly scales values according to magnitude and is common in transformers. Sigmoid maps to `(0,1)` and is useful for independent binary probabilities; softmax normalizes mutually exclusive categorical logits. Activation choice belongs to the model design, while the loss must match the output/target contract.
+1. Attempt the [exit test](#exit-test) first.
+2. Sections [0.6.6](#066--normalization-layernorm-and-rmsnorm) through [0.6.8](#068--dropout) are the focus; they explain why deep networks train at all.
+3. Record gaps in [`progress.md`](../progress.md).
 
-## Forward pass, loss, and backward pass
-
-```text
-features → layers → logits → task loss
-                              │
-parameters ← optimizer ← gradients
-```
-
-Logits are raw scores. For multiclass classification, use categorical cross-entropy with one target class per example. For independent multilabel decisions, use a binary-logit loss per label. Applying softmax before a cross-entropy function that expects logits changes the objective and reduces numerical stability.
-
-Backpropagation computes each parameter's contribution to the loss. The optimizer updates parameters. Evaluation must disable training-only stochastic behavior and gradient tracking when gradients are unnecessary.
-
-## Initialization
-
-If every neuron starts with identical weights, many receive identical gradients and remain redundant. Random initialization breaks symmetry. Its scale should preserve usable activation and gradient variance through depth.
-
-Xavier/Glorot initialization is designed around fan-in and fan-out; Kaiming/He initialization targets rectifier-like activations. Exact choices depend on activation, architecture, residual scaling, and framework defaults. Initialization is an initial condition, not a substitute for normalization or a sound optimizer.
-
-## Normalization
-
-LayerNorm normalizes features within one example/token:
-
-```text
-normalized = (x − mean_features) / sqrt(var_features + epsilon)
-output = scale ⊙ normalized + bias
-```
-
-It behaves the same with respect to batch statistics in training and evaluation, unlike BatchNorm. It stabilizes feature scale but does not guarantee equal gradient scale or eliminate every optimization problem.
-
-Transformers commonly place LayerNorm before a sublayer (pre-norm) or after residual addition (post-norm). The choice changes gradient paths and must match checkpoint weights.
-
-## Residual connections
-
-A residual update is `y = x + F(x)`. The shapes must match, or a deliberate projection must reconcile them. The identity path lets a block learn an incremental change and provides a direct additive route for gradients.
-
-Residuals do not mean all layers are optional: the learned updates accumulate through depth, and normalization placement changes what each sublayer sees.
-
-## Dropout and train/evaluation mode
-
-Dropout randomly zeros activations during training and rescales survivors so their expectation is preserved. During evaluation it becomes an identity operation. It regularizes co-adaptation but can slow optimization or harm small-data models if too strong.
+Examples assume:
 
 ```python
-model.train()  # dropout active
-model.eval()   # dropout inactive
+import math
+import torch
+import torch.nn.functional as F
+from torch import nn
 ```
 
-`model.eval()` does not disable gradients. Use `torch.no_grad()` for ordinary validation. A reproducibility test should compare outputs in evaluation mode; repeated training-mode outputs can differ by design.
+## 0.6.1 — The linear layer
 
-## Capacity, underfitting, and overfitting
+A linear (fully connected) layer applies a learned affine transformation, `y = xW + b`. In PyTorch, `nn.Linear(in_features, out_features)` stores `weight` as `[out_features, in_features]` and computes `x @ weight.T + bias`, accepting any number of leading axes:
 
-Underfitting means the model cannot adequately fit training data under the current representation, capacity, or optimization. Overfitting means training performance improves while held-out performance degrades or fails to generalize. More parameters can increase capacity but do not determine either outcome alone.
+```python
+layer = nn.Linear(768, 256)
+print(layer(torch.randn(32, 128, 768)).shape)          # [32, 128, 256]
+print(sum(p.numel() for p in layer.parameters()))      # 196,864 = 768*256 + 256
+```
 
-Track training and validation curves, use data splits that reflect deployment, and compare against a simple baseline. A small neural network beating chance on leaked validation data proves little.
+Parameter counting is a useful habit: a linear layer holds `in × out` weights plus `out` biases. In a transformer, the feed-forward block's two linear layers hold roughly two thirds of the parameters in each block.
 
-## Checkpoint
+## 0.6.2 — Activations, and why they are required
 
-1. Why does a deep stack of linear layers without activations collapse to one layer?
-2. What is the difference between logits and probabilities?
-3. Why do residual additions require compatible shapes?
-4. Why are `model.eval()` and `torch.no_grad()` both used in validation?
+Without a nonlinearity between them, stacked linear layers collapse into one (0.3.6). An **activation function** applies a nonlinear transform element-wise, leaving shapes unchanged.
+
+| Activation | Definition | Notes |
+|---|---|---|
+| Sigmoid | `1 / (1 + e⁻ˣ)` | squashes to (0, 1); saturates and kills gradients; still used for binary outputs and gates |
+| Tanh | `(eˣ − e⁻ˣ)/(eˣ + e⁻ˣ)` | zero-centered, range (−1, 1); also saturates |
+| ReLU | `max(0, x)` | cheap, no saturation for positive inputs; can produce permanently dead units |
+| GELU | `x · Φ(x)` | smooth, near-zero for very negative inputs; the transformer default |
+| SiLU/Swish | `x · sigmoid(x)` | similar to GELU; used in Llama-style models |
+
+**GELU** (Gaussian Error Linear Unit) weights an input by the probability that a standard normal variable is below it, `Φ(x)`. It behaves much like ReLU for large values but is smooth near zero and lets small negative values pass slightly, which empirically trains better in transformers. GPT-2 and BERT use GELU.
+
+```python
+x = torch.tensor([-3.0, -0.5, 0.0, 0.5, 3.0])
+print(F.relu(x).tolist())   # [0.0, 0.0, 0.0, 0.5, 3.0]: a hard corner at 0
+print(F.gelu(x).round(decimals=4).tolist())
+# [-0.0041, -0.1543, 0.0, 0.3457, 2.9959]: smooth, small negative values survive
+```
+
+Recent LLMs often use **gated** variants such as SwiGLU, which splits the feed-forward input in two and multiplies one half by an activated copy of the other. They typically use a slightly smaller hidden width to keep the parameter count comparable.
+
+## 0.6.3 — The forward pass
+
+The forward pass is just composition. A two-layer classifier over pooled embeddings, which is the Month 0 project's model:
+
+```text
+token IDs   [B, N]        → embedding  → [B, N, D]
+masked mean pooling       →             [B, D]
+linear + activation       →             [B, H]
+linear                    →             [B, C]  (logits)
+```
+
+```python
+torch.manual_seed(0)
+B, N, D, H, C, V = 4, 10, 32, 64, 2, 100
+
+model = nn.Sequential(nn.Linear(D, H), nn.GELU(), nn.Linear(H, C))
+embedding = nn.Embedding(V, D, padding_idx=0)
+
+token_ids = torch.randint(1, V, (B, N))
+token_ids[0, 7:] = 0                                   # pad the first example
+
+mask = (token_ids != 0).unsqueeze(-1).float()          # [B, N, 1]
+pooled = (embedding(token_ids) * mask).sum(1) / mask.sum(1).clamp(min=1)
+logits = model(pooled)
+
+assert logits.shape == (B, C)
+print(F.cross_entropy(logits, torch.randint(0, C, (B,))).item())   # near log 2 = 0.69
+```
+
+The whole Month 0 pipeline is visible here: embedding lookup, padding-aware pooling, a nonlinearity, and logits fed to cross-entropy.
+
+## 0.6.4 — Losses
+
+The loss turns predictions and targets into one scalar to minimize.
+
+| Task | Loss | PyTorch | Input |
+|---|---|---|---|
+| Multi-class classification | cross-entropy | `F.cross_entropy` | raw logits `[B, C]`, integer targets `[B]` |
+| Binary / multi-label | binary cross-entropy | `F.binary_cross_entropy_with_logits` | raw logits, float targets |
+| Regression | mean squared error | `F.mse_loss` | predictions and targets of the same shape |
+| Regression, outlier-robust | Huber / smooth L1 | `F.smooth_l1_loss` | same |
+
+Two practical rules:
+
+- Use the `_with_logits` variants. They fuse the sigmoid or softmax into the loss using the log-sum-exp trick (0.2.16), which is numerically stable; applying sigmoid yourself and then taking a log is not.
+- For language modeling, targets are the input sequence shifted by one, and padded positions are excluded with `ignore_index`:
+
+```python
+logits = torch.randn(2, 10, 100)                       # [B, N, V]
+targets = torch.randint(0, 100, (2, 10))               # [B, N]
+targets[0, 8:] = -100                                  # mark padding as ignored
+
+loss = F.cross_entropy(logits.reshape(-1, 100), targets.reshape(-1), ignore_index=-100)
+print(loss.item())                                     # ignored positions do not contribute
+```
+
+## 0.6.5 — Initialization
+
+Initialize every weight to zero and all units in a layer compute the same thing and receive the same gradient forever; this is the symmetry problem, and it is why initialization is random. Initialize too large or too small and activations and gradients blow up or vanish exponentially with depth, exactly as measured in 0.5, Exercise 3.
+
+The fix is to set the scale so that variance is roughly preserved from layer to layer:
+
+- **Xavier/Glorot**, variance `2 / (fan_in + fan_out)`, suits symmetric activations such as tanh.
+- **Kaiming/He**, variance `2 / fan_in`, compensates for ReLU discarding half the input and is the default for ReLU-family networks.
+
+```python
+layer = nn.Linear(512, 512)
+x = torch.randn(1000, 512)
+
+nn.init.normal_(layer.weight, std=0.02)                # GPT-2 style fixed scale
+print(round(layer(x).std().item(), 3))                 # about 0.45
+
+nn.init.kaiming_normal_(layer.weight, nonlinearity="relu")
+print(round(layer(x).std().item(), 3))                 # about 1.4, preserving scale through ReLU
+```
+
+PyTorch layers already initialize sensibly, so you rarely write this by hand. What you do need to recognize is a custom `_init_weights` in a model definition, and the reason it exists.
+
+## 0.6.6 — Normalization: LayerNorm and RMSNorm
+
+Normalization keeps activations in a consistent range as they pass through many layers, which stabilizes training and makes it far less sensitive to the learning rate.
+
+**LayerNorm** normalizes across the feature dimension of each token independently, then applies a learned scale and shift:
+
+```text
+LayerNorm(x) = γ · (x − μ) / √(σ² + ε) + β,   with μ and σ² over the D features of one token
+```
+
+Because it works per token, it is unaffected by batch size, sequence length, and padding, which is why transformers use it instead of BatchNorm.
+
+```python
+x = torch.randn(4, 10, 64) * 5 + 3
+normalized = nn.LayerNorm(64)(x)
+
+print(normalized.mean(-1).abs().max().item() < 1e-5)   # True: each token has mean about 0
+print(round(normalized.std(-1).mean().item(), 3))      # about 1.0
+```
+
+**RMSNorm** drops the mean subtraction and the shift, dividing only by the root-mean-square:
+
+```text
+RMSNorm(x) = γ · x / √(mean(x²) + ε)
+```
+
+It is cheaper and works as well in practice, so most recent LLMs use it.
+
+**Placement matters.** Pre-norm blocks apply normalization *before* the sublayer, `x + Sublayer(Norm(x))`. Post-norm applies it after, `Norm(x + Sublayer(x))`. The original transformer used post-norm and needed careful learning-rate warmup to train; essentially every modern LLM uses pre-norm because it is far more stable at depth.
+
+**BatchNorm**, for contrast, normalizes each feature across the batch, keeps running statistics, and behaves differently in training and evaluation. It is common in convolutional vision models and a poor fit for variable-length padded text.
+
+## 0.6.7 — Residual connections
+
+A residual (skip) connection adds a sublayer's input to its output:
+
+```text
+y = x + Sublayer(x)
+```
+
+The gradient of that sum with respect to `x` is `1 + ∂Sublayer/∂x`. The `1` gives gradients a path that *adds* rather than multiplies, so the exponential decay measured in 0.5 no longer applies to the shortcut. That single change is what made networks with dozens or hundreds of layers trainable.
+
+A second, useful framing: the identity path means a block only has to learn the *difference* from doing nothing. An untrained or unhelpful block can stay near the identity rather than destroying the signal.
+
+```python
+class Block(nn.Module):
+    def __init__(self, dim: int):
+        super().__init__()
+        self.norm = nn.LayerNorm(dim)
+        self.net = nn.Sequential(nn.Linear(dim, 4 * dim), nn.GELU(), nn.Linear(4 * dim, dim))
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return x + self.net(self.norm(x))      # pre-norm residual
+
+x = torch.randn(2, 5, 64)
+print(Block(64)(x).shape)                      # [2, 5, 64]: shape is preserved, so blocks stack
+```
+
+Residual blocks preserve shape by construction, which is why a transformer can stack 12, 32, or 80 of them without any shape bookkeeping.
+
+## 0.6.8 — Dropout
+
+Dropout randomly zeroes a fraction `p` of activations during training and scales the survivors by `1/(1−p)` so the expected value is unchanged. It discourages the network from depending on any single unit.
+
+```python
+torch.manual_seed(0)
+dropout = nn.Dropout(p=0.5)
+x = torch.ones(8, 8)
+
+dropout.train()
+out = dropout(x)
+print(round(out.mean().item(), 3), (out == 0).float().mean().item())   # about 1.0, about half zeroed
+
+dropout.eval()
+print((dropout(x) == x).all().item())                                  # True: disabled at eval
+```
+
+> **Pitfall:** Dropout and BatchNorm behave differently in training and evaluation. Forgetting `model.eval()` before validation adds noise to your metrics; forgetting `model.train()` afterward silently disables regularization for the rest of training. Large LLM pretraining runs often set dropout to 0, since one pass over a huge corpus provides little opportunity to memorize, but fine-tuning on small datasets usually reinstates it.
+
+Other regularizers you will meet in 0.7: weight decay, early stopping, data augmentation, and label smoothing.
+
+## 0.6.9 — Capacity, underfitting, and overfitting
+
+**Capacity** is how complex a function a model can represent, governed by width, depth, and parameter count. It sets the two failure modes you will diagnose in 0.7:
+
+- **Underfitting**: too little capacity (or too little training) to capture the pattern. Training and validation loss are both high and close together.
+- **Overfitting**: enough capacity to memorize the training set rather than generalize. Training loss keeps falling while validation loss turns upward.
+
+The order to work in is worth internalizing: **get the model to overfit first, then regularize.** A model that cannot overfit a small training set has a capacity or code problem, and no amount of dropout or weight decay will help. Once it overfits, you have proven capacity and can trade some of it for generalization.
+
+The levers, roughly in order of what to reach for:
+
+| Symptom | Try |
+|---|---|
+| Underfitting | more width or depth, train longer, raise the learning rate, weaken regularization |
+| Overfitting | more data, augmentation, weight decay, dropout, early stopping, a smaller model |
+
+The classical picture is a U-shaped validation curve where capacity past a point always hurts. Large models complicate that: past the interpolation threshold, validation error can fall again, which is the "double descent" phenomenon. In practice, for very large models trained on very large corpora, more capacity plus more data usually keeps helping, and that observation is what the scaling-law work in Month 1 formalizes.
+
+## 0.6.10 — Putting it together: the transformer block
+
+Every component above now assembles into the block you will implement in Month 1:
+
+```text
+x → LayerNorm → Multi-Head Attention  → + x   (residual)
+  → LayerNorm → Linear → GELU → Linear → + x   (residual)
+```
+
+Attention mixes information *between* tokens; the feed-forward network transforms each token independently, usually expanding to `4D` and projecting back. Normalization keeps the scales in range, and the residuals keep gradients flowing. A full model is an embedding layer, `L` of these blocks, a final norm, and an output projection to vocabulary logits (0.3).
+
+## Exercises
+
+### Exercise 1 — Linear layers collapse without activations
+
+Build `nn.Sequential(nn.Linear(16, 64), nn.Linear(64, 16))` and find the single equivalent weight and bias. Verify it reproduces the outputs, then insert `nn.GELU()` between the layers and show the equivalence breaks.
+
+### Exercise 2 — Compare activations
+
+Plot or tabulate ReLU, GELU, SiLU, sigmoid, and tanh over `[-4, 4]`, together with their gradients. Identify which saturate, and explain what a saturated gradient means for training.
+
+### Exercise 3 — Residuals keep gradients alive
+
+Take the 30-layer stack from 0.5, Exercise 3 at the vanishing scale of 0.10. Build two more versions: one wrapping each layer as `x + layer(x)`, and one as `x + layer(norm(x))` with a LayerNorm. Compare the output activation scale and the first layer's gradient norm across all three.
+
+### Exercise 4 — Parameter count of a transformer block
+
+For `D = 768` with a `4D` feed-forward width, count the parameters in the attention projections (`Q`, `K`, `V`, `O`), the feed-forward layers, and the two LayerNorms. Verify against a PyTorch module, and compute how a 12-block model reaches roughly 85 million parameters before embeddings.
+
+<details>
+<summary>Show exercise solutions</summary>
+
+### Exercise 1
+
+```python
+torch.manual_seed(0)
+model = nn.Sequential(nn.Linear(16, 64), nn.Linear(64, 16))
+first, second = model
+W = second.weight @ first.weight
+b = second.weight @ first.bias + second.bias
+
+x = torch.randn(10, 16)
+assert torch.allclose(model(x), x @ W.T + b, atol=1e-5)
+
+gated = nn.Sequential(first, nn.GELU(), second)
+assert not torch.allclose(gated(x), x @ W.T + b, atol=1e-3)
+```
+
+### Exercise 2
+
+```python
+x = torch.linspace(-4, 4, 9, requires_grad=True)
+for name, fn in [("relu", F.relu), ("gelu", F.gelu), ("silu", F.silu),
+                 ("sigmoid", torch.sigmoid), ("tanh", torch.tanh)]:
+    y = fn(x)
+    grad = torch.autograd.grad(y.sum(), x, retain_graph=True)[0]
+    print(f"{name:8s} values {[round(v, 2) for v in y.tolist()]}")
+    print(f"{'':8s} grads  {[round(v, 3) for v in grad.tolist()]}")
+```
+
+Sigmoid and tanh have gradients near zero at both extremes, so a unit driven into saturation stops receiving a useful learning signal, which is one source of vanishing gradients. ReLU's gradient is exactly 0 for negative inputs, which can leave a unit permanently dead. GELU and SiLU stay smooth and keep a small nonzero gradient for moderately negative inputs.
+
+### Exercise 3
+
+```python
+class Residual(nn.Module):
+    def __init__(self, inner: nn.Module, norm: nn.Module | None = None):
+        super().__init__()
+        self.inner = inner
+        self.norm = norm
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return x + self.inner(self.norm(x) if self.norm else x)
+
+def probe(mode: str, scale: float = 0.10, depth: int = 30, width: int = 64) -> tuple[float, float]:
+    torch.manual_seed(0)
+    layers = [nn.Linear(width, width, bias=False) for _ in range(depth)]
+    for layer in layers:
+        nn.init.normal_(layer.weight, std=scale)
+
+    if mode == "plain":
+        blocks = layers
+    elif mode == "residual":
+        blocks = [Residual(layer) for layer in layers]
+    else:
+        blocks = [Residual(layer, nn.LayerNorm(width)) for layer in layers]
+
+    output = nn.Sequential(*blocks)(torch.randn(8, width))
+    output.pow(2).mean().backward()
+    return output.std().item(), layers[0].weight.grad.norm().item()
+
+for mode in ["plain", "residual", "residual+norm"]:
+    activation_std, grad_norm = probe(mode)
+    print(f"{mode:14s} activation std {activation_std:.2e}   layer-1 grad {grad_norm:.2e}")
+```
+
+```text
+plain          activation std 8.16e-04   layer-1 grad 4.05e-06
+residual       activation std 1.50e+03   layer-1 grad 4.48e+06
+residual+norm  activation std 4.50e+00   layer-1 grad 1.21e+01
+```
+
+The plain stack loses five orders of magnitude on the way back to layer 1, so early layers barely learn. Residuals fix the vanishing completely, since each block contributes an additive 1 rather than another multiplication by a small weight.
+
+But residuals alone overcorrect here: each block now passes through roughly `1 + gain`, so activations and gradients grow instead. That is precisely why residuals and normalization ship together in a transformer block. With a LayerNorm inside the residual, both the activation scale and the gradient stay in a workable range, and this combination is what makes 30, or 80, stacked blocks trainable.
+
+### Exercise 4
+
+```python
+D, ff = 768, 4 * 768
+
+attention = 4 * (D * D + D)          # Q, K, V, O projections with biases
+feed_forward = (D * ff + ff) + (ff * D + D)
+norms = 2 * (2 * D)                  # LayerNorm gamma and beta
+
+total = attention + feed_forward + norms
+print(f"attention {attention:,}  ff {feed_forward:,}  norms {norms:,}  block {total:,}")
+print(f"12 blocks: {12 * total:,}")
+
+block = nn.ModuleDict({
+    "attn": nn.ModuleList([nn.Linear(D, D) for _ in range(4)]),
+    "ff": nn.Sequential(nn.Linear(D, ff), nn.GELU(), nn.Linear(ff, D)),
+    "norms": nn.ModuleList([nn.LayerNorm(D) for _ in range(2)]),
+})
+assert sum(p.numel() for p in block.parameters()) == total
+```
+
+One block is about 7.1 million parameters, roughly one third attention and two thirds feed-forward. Twelve blocks give about 85 million, which is GPT-2 small's transformer stack before its 38 million embedding parameters.
+
+</details>
+
+## Exit test
+
+1. Why does a network need nonlinear activations?
+2. How does GELU differ from ReLU, and why do transformers prefer it?
+3. What shape does an activation function change?
+4. Which loss do you use for multi-class classification, and what does it take as input?
+5. Why use `binary_cross_entropy_with_logits` rather than sigmoid followed by a log?
+6. What goes wrong if all weights are initialized to zero?
+7. What does Kaiming initialization try to preserve, and why the factor of 2?
+8. What does LayerNorm normalize over, and why is it preferred to BatchNorm in transformers?
+9. What is the difference between pre-norm and post-norm, and which is standard now?
+10. Why does a residual connection help gradients reach early layers?
+11. What does dropout do, and how does its behavior differ between training and evaluation?
+12. Write out the structure of a transformer block.
+13. What does it mean if a model cannot overfit a small training set, and why regularize only afterward?
 
 <details>
 <summary>Show answers</summary>
 
-1. Matrix multiplication and bias composition remain affine: `(xW1+b1)W2+b2 = x(W1W2)+(b1W2+b2)`.
-2. Logits are unrestricted scores; probabilities are normalized under a defined mapping such as sigmoid or softmax.
-3. Element-wise addition needs corresponding features. A projection can intentionally map one path to the required width.
-4. Evaluation mode disables training behavior such as dropout; `no_grad` avoids recording a backward graph. Neither replaces the other.
-
-</details>
-
-## Exercise — Build and diagnose a residual MLP
-
-Implement a block `x + Linear(GELU(Linear(LayerNorm(x))))` that maps width 16 back to width 16. Test output shape, deterministic evaluation, stochastic training with dropout, and finite gradients.
-
-<details>
-<summary>Show exercise solution</summary>
-
-```python
-import torch
-from torch import nn
-
-class ResidualMLP(nn.Module):
-    def __init__(self, width=16, dropout=0.1):
-        super().__init__()
-        self.norm = nn.LayerNorm(width)
-        self.net = nn.Sequential(
-            nn.Linear(width, 4 * width), nn.GELU(),
-            nn.Dropout(dropout), nn.Linear(4 * width, width),
-        )
-
-    def forward(self, x):
-        return x + self.net(self.norm(x))
-
-torch.manual_seed(7)
-model = ResidualMLP()
-x = torch.randn(4, 16, requires_grad=True)
-assert model(x).shape == x.shape
-model.eval()
-torch.testing.assert_close(model(x), model(x))
-model.train()
-loss = model(x).square().mean()
-loss.backward()
-assert x.grad is not None and torch.isfinite(x.grad).all()
-```
-
-To test dropout variation, compare several training-mode forwards rather than assuming two random masks must differ. With dropout zero, training and evaluation are intentionally identical for this block.
+1. Because composing linear maps yields another linear map, so depth without nonlinearity adds no representational power.
+2. GELU is smooth and weights inputs by `Φ(x)`, letting small negative values through, whereas ReLU has a hard cutoff at zero. The smooth gradient and absence of dead units train better in transformers.
+3. None. Activations are applied element-wise and preserve shape.
+4. Cross-entropy, taking raw logits `[B, C]` and integer class targets `[B]`.
+5. The fused version applies the log-sum-exp trick internally and stays numerically stable; computing sigmoid first can underflow to 0 and then produce `-inf` on the log.
+6. Every unit in a layer computes the same function and receives the same gradient, so they never differentiate. Random initialization breaks that symmetry.
+7. It preserves activation variance across layers. The factor of 2 compensates for ReLU zeroing roughly half its inputs.
+8. Over the feature dimension of each token independently. It is independent of batch size and padding, needs no running statistics, and behaves identically in training and evaluation.
+9. Pre-norm normalizes the sublayer input, `x + Sublayer(Norm(x))`; post-norm normalizes after the residual add. Pre-norm is standard because it trains stably at depth.
+10. The derivative of `x + f(x)` with respect to `x` includes an additive 1, so gradients have a path that is not multiplied down by each layer's weights.
+11. It zeroes a random fraction of activations during training and rescales the rest by `1/(1−p)`. At evaluation it is disabled and passes inputs through unchanged.
+12. `x → Norm → Multi-Head Attention → add x`, then `x → Norm → Linear(D→4D) → GELU → Linear(4D→D) → add x`.
+13. It means the problem is capacity or a bug in the code, not regularization, so the fix is more capacity or a corrected pipeline. Regularization trades capacity for generalization, which is only worth doing once you have proven there is capacity to trade.
 
 </details>
 
 ## Completion criteria
 
-Trace a forward/backward pass, select an output/loss contract, explain initialization, LayerNorm, residuals, and dropout, and diagnose train-versus-validation curves.
+You are done when:
 
-## Primary references
+- you can write a transformer block's structure from memory and explain each component's purpose
+- you can explain what initialization, normalization, residuals, and dropout each fix
+- you can pick the right loss for a task and state its expected untrained value
+- you can explain why `model.eval()` matters
+- your four exercises run, including the residual gradient comparison
 
-- [PyTorch neural-network modules](https://docs.pytorch.org/docs/stable/nn.html)
-- [Deep Residual Learning for Image Recognition](https://arxiv.org/abs/1512.03385)
+## References
+
+**Activations**
+- [Gaussian Error Linear Units (GELU)](https://arxiv.org/abs/1606.08415)
+- [GLU Variants Improve Transformer](https://arxiv.org/abs/2002.05202) — SwiGLU
+- [PyTorch: non-linear activations](https://docs.pytorch.org/docs/stable/nn.html#non-linear-activations-weighted-sum-nonlinearity)
+
+**Losses**
+- [PyTorch: loss functions](https://docs.pytorch.org/docs/stable/nn.html#loss-functions)
+
+**Initialization**
+- [Understanding the difficulty of training deep feedforward networks](https://proceedings.mlr.press/v9/glorot10a.html) — Xavier
+- [Delving Deep into Rectifiers](https://arxiv.org/abs/1502.01852) — Kaiming
+- [PyTorch: `torch.nn.init`](https://docs.pytorch.org/docs/stable/nn.init.html)
+
+**Normalization**
 - [Layer Normalization](https://arxiv.org/abs/1607.06450)
-- [Gaussian Error Linear Units](https://arxiv.org/abs/1606.08415)
-- [Dropout](https://jmlr.org/papers/v15/srivastava14a.html)
+- [Root Mean Square Layer Normalization](https://arxiv.org/abs/1910.07467)
+- [On Layer Normalization in the Transformer Architecture](https://arxiv.org/abs/2002.04745) — pre-norm versus post-norm
+
+**Residual connections**
+- [Deep Residual Learning for Image Recognition](https://arxiv.org/abs/1512.03385)
+
+**Dropout and the block as a whole**
+- [Dropout: A Simple Way to Prevent Neural Networks from Overfitting](https://jmlr.org/papers/v15/srivastava14a.html)
+- [The Illustrated Transformer](https://jalammar.github.io/illustrated-transformer/)
+- [Neural Networks: Zero to Hero, Andrej Karpathy](https://karpathy.ai/zero-to-hero.html)
+
+## About this lesson
+
+Written to cover section 0.6 of the [Month 0 curriculum](../README.md). Code examples were checked with PyTorch 2.14 on CPU.
