@@ -483,6 +483,7 @@ You are done when:
 - [Information Retrieval and Search](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/05-nlp-foundations-to-advanced/14-information-retrieval-search) maps to inverted indexes, TF-IDF, BM25, and ranking metrics.
 - [Embedding Models — Deep Dive](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/05-nlp-foundations-to-advanced/22-embedding-models-deep-dive) maps to dense retrieval.
 - [Hybrid Retrieval with BM25 and Dense Embeddings](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/19-capstone-projects/65-hybrid-retrieval-bm25-dense) provides a focused implementation of the hybrid path.
+- [Chunking Strategies for RAG](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/05-nlp-foundations-to-advanced/23-chunking-strategies-rag) and [Advanced RAG](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/11-llm-engineering/07-advanced-rag) map to the retrieval unit and reranking (0.13.6–0.13.7).
 
 See the [complete Month 0–1 content map](../../references/ai-engineering-from-scratch-map.md).
 

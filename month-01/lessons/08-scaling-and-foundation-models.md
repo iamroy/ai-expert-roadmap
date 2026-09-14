@@ -248,4 +248,6 @@ Use parameters, tokens, compute, memory, and task quality as separate quantities
 - [Scaling: Distributed Training](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/10-llms-from-scratch/05-scaling-distributed) extends compute allocation into system design.
 - [Inference Platform Economics](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/17-infrastructure-and-production/02-inference-platform-economics) connects model selection to serving cost and operational constraints.
 
+- [Quantization: Making Models Fit](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/10-llms-from-scratch/11-quantization) maps to the precision and memory tradeoffs named in 1.8.5.
+
 See the [complete Month 0–1 content map](../../references/ai-engineering-from-scratch-map.md).

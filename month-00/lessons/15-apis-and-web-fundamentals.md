@@ -501,6 +501,8 @@ You are done when:
 - [Building a Production LLM Application](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/11-llm-engineering/13-production-app) applies request contracts, streaming, retries, and failure handling in an LLM service.
 - [AI Gateways](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/17-infrastructure-and-production/19-ai-gateways) extends the same concerns to multi-provider production routing.
 
+- [Caching, Rate Limiting & Cost Optimization](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/11-llm-engineering/11-caching-cost) maps to rate limits, retries, and per-request cost (0.15.4).
+
 See the [complete Month 0–1 content map](../../references/ai-engineering-from-scratch-map.md).
 
 ## About this lesson

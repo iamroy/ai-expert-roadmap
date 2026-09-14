@@ -564,6 +564,8 @@ You are done when:
 - [LLM Observability](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/17-infrastructure-and-production/13-llm-observability) maps to logs, metrics, traces, and operational signals.
 - [Load Testing LLM APIs](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/17-infrastructure-and-production/22-load-testing-llm-apis) extends integration testing to concurrent production traffic.
 
+- [Evaluation & Testing LLM Applications](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/11-llm-engineering/10-evaluation) maps to regression testing and non-deterministic assertions (0.17.4).
+
 See the [complete Month 0–1 content map](../../references/ai-engineering-from-scratch-map.md).
 
 ## About this lesson

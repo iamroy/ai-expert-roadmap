@@ -375,4 +375,6 @@ Implement the four required generation modes, validate filtering edge cases, exp
 - [Inference Optimization](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/10-llms-from-scratch/12-inference-optimization) maps to autoregressive serving, caching, batching, and latency.
 - [Speculative Decoding](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/07-transformers-deep-dive/16-speculative-decoding) extends the lesson beyond single-model token selection.
 
+- [Structured Outputs & Constrained Decoding](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/05-nlp-foundations-to-advanced/20-structured-outputs-constrained-decoding) maps to editing logits before sampling, the same filter stage as 1.6.5.
+
 See the [complete Month 0–1 content map](../../references/ai-engineering-from-scratch-map.md).

@@ -466,6 +466,8 @@ You are done when:
 - [Optimizers](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/03-deep-learning-core/06-optimizers) and [Regularization](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/03-deep-learning-core/07-regularization) map to update rules, weight decay, and generalization controls.
 - [Weight Initialization and Training Stability](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/03-deep-learning-core/08-weight-initialization) maps to stable signal flow.
 - [Learning Rate Schedules and Warmup](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/03-deep-learning-core/09-learning-rate-schedules) maps directly to the scheduling section.
+- [Bias-Variance Tradeoff](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/02-ml-fundamentals/10-bias-variance) and [Model Evaluation](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/02-ml-fundamentals/09-model-evaluation) map to overfitting diagnosis and validation (0.7.6–0.7.7).
+- [Hyperparameter Tuning](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/02-ml-fundamentals/12-hyperparameter-tuning) maps to searching the settings this lesson tells you to tune first.
 
 See the [complete Month 0–1 content map](../../references/ai-engineering-from-scratch-map.md).
 

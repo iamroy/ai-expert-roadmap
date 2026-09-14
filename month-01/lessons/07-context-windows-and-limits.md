@@ -259,4 +259,6 @@ Estimate input/output capacity, attention storage, and KV storage separately. De
 - [Native Sparse Attention](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/10-llms-from-scratch/17-native-sparse-attention) extends the architectural approaches to longer sequences.
 - [Long-Context Evaluation](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/05-nlp-foundations-to-advanced/28-long-context-evaluation) and [Context Engineering](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/11-llm-engineering/05-context-engineering) map to useful-context measurement and budget design.
 
+- [Prompt Caching and Context Caching](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/11-llm-engineering/15-prompt-caching) maps to prefix reuse against the budget in 1.7.1.
+
 See the [complete Month 0–1 content map](../../references/ai-engineering-from-scratch-map.md).

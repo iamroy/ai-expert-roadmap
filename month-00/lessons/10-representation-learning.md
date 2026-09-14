@@ -394,6 +394,8 @@ You are done when:
 - [Open-Vocabulary Vision — CLIP](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/04-computer-vision/18-open-vocab-clip) maps to shared multimodal spaces.
 - [Image Retrieval & Metric Learning](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/04-computer-vision/20-image-retrieval-metric) extends similarity objectives and retrieval evaluation.
 
+- [Embeddings & Vector Representations](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/11-llm-engineering/04-embeddings) maps to using a pretrained space for semantic search (0.10.5).
+
 See the [complete Month 0–1 content map](../../references/ai-engineering-from-scratch-map.md).
 
 ## About this lesson
