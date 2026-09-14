@@ -107,7 +107,7 @@ SECTION_RESOURCES: dict[str, dict[str, str]] = {
         ),
     },
     "month-00/lessons/10-representation-learning.md": {
-        "## 0.10.7 — The through-line: CNN features → token embeddings → multimodal": (
+        "## 0.10.8 — The through-line: CNN features → token embeddings → multimodal": (
             "> **Read and watch:** [CLIP]"
             "(https://arxiv.org/abs/2103.00020) shows a shared image-text embedding space. "
             "Stanford CS224N's [word vectors lecture]"

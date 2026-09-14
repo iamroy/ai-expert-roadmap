@@ -16,6 +16,7 @@ The curriculum names representation learning as one of the three areas to valida
 After this lesson you can:
 
 - define a representation, a latent space, and an embedding, and say how they relate
+- explain what a pretrained representation buys you and when it stops working
 - explain what makes an embedding space useful and how geometry encodes meaning
 - describe the trade-offs of embedding dimensionality
 - distinguish static embeddings from contextual ones and explain why it matters
@@ -26,7 +27,7 @@ After this lesson you can:
 ## How to use this lesson
 
 1. Attempt the [exit test](#exit-test) first.
-2. Section [0.10.7](#0107--the-through-line-cnn-features--token-embeddings--multimodal) is what the Month 0 exit criteria ask you to explain.
+2. Section [0.10.8](#0108--the-through-line-cnn-features--token-embeddings--multimodal) is what the Month 0 exit criteria ask you to explain.
 3. Record gaps in [`progress.md`](../progress.md).
 
 Examples assume:
@@ -120,7 +121,30 @@ This is what attention buys. Each layer lets a token's representation absorb inf
 
 Note the layered structure inside a transformer: the *input* embedding table is static, one vector per token ID, and everything after the first attention layer is contextual. Both are called embeddings, which causes constant confusion.
 
-## 0.10.5 — From token vectors to one vector for a document
+## 0.10.5 — Pretrained representations
+
+Everything above assumed a useful embedding space already exists. Pretraining is where it comes from, and it is why representation learning matters practically rather than only conceptually.
+
+The economics are the point. Learning a good space requires enormous data, and almost nobody has labeled data at that scale. Self-supervised pretraining (0.11) sidesteps the requirement by deriving its targets from the data itself, so a model can learn from essentially unlimited unlabeled text or images. What you download is the result of that compute: a space where the geometry is already meaningful.
+
+Three ways to use one, matching the adaptation strategies in 0.9.4:
+
+| Use | What you do | When |
+|---|---|---|
+| **Frozen features** | embed inputs, train a small model on the vectors | little labeled data; the domain resembles pretraining |
+| **Fine-tuned** | continue training the encoder on your task | enough data, and a domain the pretrained model handles poorly |
+| **Off the shelf** | embed and compare directly, no training at all | retrieval and clustering, which need no labels |
+
+The third row is worth dwelling on, because it is what makes semantic search possible. You are not training anything. You embed documents once, embed a query, and rank by cosine similarity (0.3.4). All of the intelligence was paid for during pretraining, by someone else.
+
+Two constraints govern whether a pretrained space actually works for you:
+
+- **The training objective defines similarity** (0.10.2). A model pretrained on paraphrase pairs groups differently from one pretrained on citations. Read what an embedding model was trained to do before assuming it matches your notion of "related".
+- **Domain distance degrades quality.** An encoder trained on web text handles railway maintenance logs or clinical notes less well, and the failure is quiet: you get plausible rankings that are subtly wrong. This is the distribution-mismatch case from 0.10.7, and it is the usual reason to fine-tune an embedding model rather than take one off the shelf.
+
+The through-line in the next section is really a statement about pretraining: the same recipe — a self-supervised objective on a large unlabeled corpus — produces CNN features, token embeddings, and CLIP's shared space alike.
+
+## 0.10.6 — From token vectors to one vector for a document
 
 A transformer gives you `[B, N, D]`: one vector per token. Retrieval and classification usually need `[B, D]`: one vector per input. The reduction is **pooling**.
 
@@ -149,7 +173,7 @@ print(pooled.shape)                                 # [2, 8]
 
 > **Pitfall:** Two mistakes account for most bad retrieval results. First, pooling over padding, which drags every short document's vector toward the padding vector. Second, using a similarity the model was not trained with. If a model was trained with cosine similarity, normalize before comparing (0.3.4).
 
-## 0.10.6 — Evaluating representation quality
+## 0.10.7 — Evaluating representation quality
 
 "Good embeddings" is not a property you can read off a loss curve. The standard evaluations:
 
@@ -168,7 +192,7 @@ Two failure modes are worth naming because both produce a good-looking loss:
 
 The practical rule: **evaluate on your task and your data.** A linear probe on your own labels, or recall@K on fifty hand-written queries against your own documents, tells you more than any leaderboard.
 
-## 0.10.7 — The through-line: CNN features → token embeddings → multimodal
+## 0.10.8 — The through-line: CNN features → token embeddings → multimodal
 
 The curriculum asks you to connect these three explicitly. They are the same idea applied to different inputs.
 

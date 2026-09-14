@@ -149,7 +149,7 @@ Three things to understand:
 - **Temperature `τ` controls sharpness** exactly as in 0.4.7. Low temperature concentrates the loss on the hardest negatives.
 - **Augmentation defines what "similar" means.** If your augmentations include color jitter, you are instructing the model that color is irrelevant. The choice of augmentation *is* the specification of the invariance you want.
 
-**CLIP** applies this across modalities: images and their captions are the positive pairs, and every other caption in the batch is a negative. The result is the shared image-text space from 0.10.6.
+**CLIP** applies this across modalities: images and their captions are the positive pairs, and every other caption in the batch is a negative. The result is the shared image-text space from 0.10.8.
 
 Some methods avoid negatives entirely. **BYOL** and **DINO** use two networks, a student and a teacher, where the teacher's weights are an exponential moving average of the student's. The student predicts the teacher's output for a different view. Collapse is prevented architecturally instead, through the momentum teacher plus centering and sharpening of the outputs. DINO's attention maps segment objects without ever being given a segmentation label, which is a striking demonstration that the representation, not the pretext task, is the product.
 

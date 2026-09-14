@@ -140,7 +140,7 @@ The difficulty is that the obvious assertion is unavailable. You cannot assert a
 | Target | Example assertion |
 |---|---|
 | Shapes | `model(batch).shape == (B, num_classes)` |
-| Invariants | extra padding does not change a prediction (0.10.5) |
+| Invariants | extra padding does not change a prediction (0.10.6) |
 | Boundaries | empty string, one token, a sequence longer than the maximum, unknown tokens |
 | Determinism | the same seed and input produce the same output |
 | The data pipeline | vocabulary lookup, encode/decode round trip, mask sums equal true lengths |
