@@ -461,6 +461,14 @@ You are done when:
 - [google-research/tuning_playbook](https://github.com/google-research/tuning_playbook) — what to tune, in what order, and how to tell whether a change helped
 - [StatQuest: gradient descent and SGD](https://www.youtube.com/@statquest) — if the optimizer intuition is thin
 
+## Mapped companion lessons
+
+- [Optimizers](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/03-deep-learning-core/06-optimizers) and [Regularization](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/03-deep-learning-core/07-regularization) map to update rules, weight decay, and generalization controls.
+- [Weight Initialization and Training Stability](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/03-deep-learning-core/08-weight-initialization) maps to stable signal flow.
+- [Learning Rate Schedules and Warmup](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/03-deep-learning-core/09-learning-rate-schedules) maps directly to the scheduling section.
+
+See the [complete Month 0–1 content map](../../references/ai-engineering-from-scratch-map.md).
+
 ## About this lesson
 
 Written to cover section 0.7 of the [Month 0 curriculum](../README.md). Code examples were checked with PyTorch 2.14 on CPU.

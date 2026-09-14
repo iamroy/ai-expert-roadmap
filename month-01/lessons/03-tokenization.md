@@ -129,3 +129,11 @@ Trace text to IDs and back, distinguish BPE/WordPiece/SentencePiece, explain voc
 - [SentencePiece](https://arxiv.org/abs/1808.06226) — system and supported tokenization approaches.
 - [BERT](https://arxiv.org/abs/1810.04805) — WordPiece and special-token conventions in a specific model.
 - [Neural Machine Translation of Rare Words with Subword Units](https://arxiv.org/abs/1508.07909) — BPE for subword modeling.
+
+## Mapped companion lessons
+
+- [Subword Tokenization](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/05-nlp-foundations-to-advanced/19-subword-tokenization) compares BPE, WordPiece, Unigram, and SentencePiece.
+- [Tokenizers](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/10-llms-from-scratch/01-tokenizers) and [Building a Tokenizer from Scratch](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/10-llms-from-scratch/02-building-a-tokenizer) map to vocabulary construction and implementation.
+- [BPE Tokenizer From Scratch](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/19-capstone-projects/30-bpe-tokenizer-from-scratch) provides a focused capstone artifact.
+
+See the [complete Month 0–1 content map](../../references/ai-engineering-from-scratch-map.md).

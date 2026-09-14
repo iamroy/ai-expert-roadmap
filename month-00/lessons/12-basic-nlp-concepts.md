@@ -536,7 +536,14 @@ You now have every component the [Month 0 project](../project/tiny-text-classifi
 - [Let's build GPT from scratch](https://www.youtube.com/watch?v=kCc8FmEb1nY) — the end of the progression table, built live
 - [huggingface/sentence-transformers](https://github.com/huggingface/sentence-transformers) — where the static-to-contextual jump lands in practice
 
-- [ai-engineering-from-scratch: NLP foundations](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/05-nlp-foundations-to-advanced) — walks the same bag-of-words to attention progression over several lessons
+
+## Mapped companion lessons
+
+- [Text Processing](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/05-nlp-foundations-to-advanced/01-text-processing) and [Bag of Words and TF-IDF](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/05-nlp-foundations-to-advanced/02-bag-of-words-tfidf) map to the preprocessing and sparse-feature baseline.
+- [Word2Vec from Scratch](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/05-nlp-foundations-to-advanced/03-word-embeddings-word2vec) and [GloVe, FastText, and Subwords](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/05-nlp-foundations-to-advanced/04-glove-fasttext-subword) map to dense word representations.
+- [CNNs and RNNs for Text](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/05-nlp-foundations-to-advanced/08-cnns-rnns-for-text) and [Attention Mechanism](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/05-nlp-foundations-to-advanced/10-attention-mechanism) continue the architecture progression.
+
+See the [complete Month 0–1 content map](../../references/ai-engineering-from-scratch-map.md).
 
 ## About this lesson
 

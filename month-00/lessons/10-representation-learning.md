@@ -388,6 +388,14 @@ You are done when:
 - [embeddings-benchmark/mteb](https://github.com/embeddings-benchmark/mteb) — how embedding quality is actually measured across tasks, which is 0.10.7 in practice
 - [karpathy/nn-zero-to-hero](https://github.com/karpathy/nn-zero-to-hero) — the `makemore` MLP lecture visualizes a learned embedding space directly
 
+## Mapped companion lessons
+
+- [Word Embeddings — Word2Vec from Scratch](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/05-nlp-foundations-to-advanced/03-word-embeddings-word2vec) and [Embedding Models — Deep Dive](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/05-nlp-foundations-to-advanced/22-embedding-models-deep-dive) map to static, contextual, and task-trained text representations.
+- [Open-Vocabulary Vision — CLIP](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/04-computer-vision/18-open-vocab-clip) maps to shared multimodal spaces.
+- [Image Retrieval & Metric Learning](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/04-computer-vision/20-image-retrieval-metric) extends similarity objectives and retrieval evaluation.
+
+See the [complete Month 0–1 content map](../../references/ai-engineering-from-scratch-map.md).
+
 ## About this lesson
 
 Written to cover section 0.10 of the [Month 0 curriculum](../README.md). Code examples were checked with PyTorch 2.14 on CPU.

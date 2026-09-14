@@ -16,6 +16,10 @@ This curriculum follows the eight-topic Month 1 roadmap in [Start Month 1](https
 
 Month 1 has three MASTER topics and five LEARN topics. All eight are required. The linked Jupyter notebooks combine the teaching text, runnable examples, learner work cells, and section-level readings or videos. Work through each lesson's examples before attempting its checkpoints without notes. Every supplied checkpoint, exercise, project solution, and exit-test answer is inside a collapsed disclosure. Open it only after writing your own attempt.
 
+Each lesson also links directly to corresponding implementations in
+`ai-engineering-from-scratch`. See the [complete Month 0–1 content map](../references/ai-engineering-from-scratch-map.md)
+for the relationship between the two curricula.
+
 ## Curriculum
 
 ### 1.1 Transformer Architecture — MASTER

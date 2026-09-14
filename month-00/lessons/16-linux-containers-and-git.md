@@ -403,6 +403,14 @@ You are done when:
 - [Learn Git Branching](https://learngitbranching.js.org/) — interactive branching and rebasing, which builds the mental model faster than reading
 - [pre-commit/pre-commit](https://github.com/pre-commit/pre-commit) and [kynan/nbstripout](https://github.com/kynan/nbstripout) — stop secrets and notebook outputs from ever reaching a commit
 
+## Mapped companion lessons
+
+- [Terminal & Shell](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/00-setup-and-tooling/10-terminal-and-shell) and [Linux for AI](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/00-setup-and-tooling/11-linux-for-ai) map to processes, streams, permissions, and environment inspection.
+- [Docker for AI](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/00-setup-and-tooling/07-docker-for-ai) maps to images, layers, ports, and volumes.
+- [Git & Collaboration](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/00-setup-and-tooling/02-git-and-collaboration) maps to commits, branches, integration, and recovery.
+
+See the [complete Month 0–1 content map](../../references/ai-engineering-from-scratch-map.md).
+
 ## About this lesson
 
 Written to cover section 0.16 of the [Month 0 curriculum](../README.md).

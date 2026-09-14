@@ -124,3 +124,11 @@ Use parameters, tokens, compute, memory, and task quality as separate quantities
 - [Language Models are Few-Shot Learners](https://arxiv.org/abs/2005.14165).
 - [Scaling Laws for Neural Language Models](https://arxiv.org/abs/2001.08361).
 - [Training Compute-Optimal Large Language Models](https://arxiv.org/abs/2203.15556).
+
+## Mapped companion lessons
+
+- [Scaling Laws](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/07-transformers-deep-dive/13-scaling-laws) maps directly to empirical loss-versus-compute relationships.
+- [Scaling: Distributed Training](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/10-llms-from-scratch/05-scaling-distributed) extends compute allocation into system design.
+- [Inference Platform Economics](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/17-infrastructure-and-production/02-inference-platform-economics) connects model selection to serving cost and operational constraints.
+
+See the [complete Month 0–1 content map](../../references/ai-engineering-from-scratch-map.md).

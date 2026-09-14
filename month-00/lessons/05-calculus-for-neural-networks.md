@@ -356,7 +356,14 @@ You are done when:
 - [karpathy/nn-zero-to-hero](https://github.com/karpathy/nn-zero-to-hero) — the notebooks for that lecture, including the exercises
 - [3Blue1Brown: Neural Networks](https://www.3blue1brown.com/topics/neural-networks) — chapters 3 and 4 are gradient descent and backpropagation
 
-- [ai-engineering-from-scratch: chain rule and autodiff](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/01-math-foundations/05-chain-rule-and-autodiff) — a second pass at this lesson that builds an autograd engine end to end
+
+## Mapped companion lessons
+
+- [Calculus for Machine Learning](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/01-math-foundations/04-calculus-for-ml) provides a second treatment of derivatives and gradients.
+- [Chain Rule & Automatic Differentiation](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/01-math-foundations/05-chain-rule-and-autodiff) builds the same computational-graph intuition into an autograd engine.
+- [Optimization](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/01-math-foundations/08-optimization) extends the gradient-descent connection.
+
+See the [complete Month 0–1 content map](../../references/ai-engineering-from-scratch-map.md).
 
 ## About this lesson
 

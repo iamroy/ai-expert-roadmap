@@ -875,6 +875,14 @@ These questions go beyond the original 12 and cover the material added to this l
 - [d2l-ai/d2l-en](https://github.com/d2l-ai/d2l-en) — the runnable source behind Dive into Deep Learning, including the linear algebra chapter
 - [labmlai annotated implementations](https://github.com/labmlai/annotated_deep_learning_paper_implementations) — attention implemented with the equations beside the code
 
+## Mapped companion lessons
+
+- [Vectors, Matrices & Operations](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/01-math-foundations/02-vectors-matrices-operations) and [Matrix Transformations](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/01-math-foundations/03-matrix-transformations) provide additional geometric and executable treatments of the core operations.
+- [Norms and Distances](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/01-math-foundations/14-norms-and-distances) maps to embedding similarity and metric choice.
+- [Singular Value Decomposition](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/01-math-foundations/11-singular-value-decomposition) maps to rank, compression, and low-rank approximation.
+
+See the [complete Month 0–1 content map](../../references/ai-engineering-from-scratch-map.md).
+
 ## About this lesson
 
 Adapted from the roadmap planning conversation, [Create Month Zero Learning List](https://chatgpt.com/share/6aa28c17-a29c-83ea-ae5b-9202ec5ba987), and an earlier repository version. The original 14 lessons, transformer connection, and 12-question exit test are preserved. Notation conventions, runnable checks, corrected LoRA notation and attention scaling, the logits connection, hands-on exercises, and the extended check were added. Code examples were checked with PyTorch 2.14 on CPU.

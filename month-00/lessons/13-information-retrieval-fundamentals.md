@@ -478,6 +478,14 @@ You are done when:
 - [beir-cellar/beir](https://github.com/beir-cellar/beir) — the benchmark that shows where dense retrieval beats BM25 and where it does not, with runnable evaluation code
 - [huggingface/sentence-transformers](https://github.com/huggingface/sentence-transformers) — bi-encoder and cross-encoder training, which is 0.13.7 in code
 
+## Mapped companion lessons
+
+- [Information Retrieval and Search](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/05-nlp-foundations-to-advanced/14-information-retrieval-search) maps to inverted indexes, TF-IDF, BM25, and ranking metrics.
+- [Embedding Models — Deep Dive](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/05-nlp-foundations-to-advanced/22-embedding-models-deep-dive) maps to dense retrieval.
+- [Hybrid Retrieval with BM25 and Dense Embeddings](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/19-capstone-projects/65-hybrid-retrieval-bm25-dense) provides a focused implementation of the hybrid path.
+
+See the [complete Month 0–1 content map](../../references/ai-engineering-from-scratch-map.md).
+
 ## About this lesson
 
 Written to cover section 0.13 of the [Month 0 curriculum](../README.md). Code examples were checked with Python 3.12.

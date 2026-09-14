@@ -440,6 +440,14 @@ You are done when:
 - [3Blue1Brown: Bayes' theorem](https://www.youtube.com/watch?v=HZGCoVF3YvM) — the geometric picture that makes base rates obvious
 - [karpathy/nn-zero-to-hero](https://github.com/karpathy/nn-zero-to-hero) — `makemore` builds a language model up from raw counts to negative log-likelihood, which is this lesson made concrete
 
+## Mapped companion lessons
+
+- [Probability and Distributions](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/01-math-foundations/06-probability-and-distributions), [Bayes' Theorem](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/01-math-foundations/07-bayes-theorem), and [Statistics for Machine Learning](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/01-math-foundations/15-statistics-for-ml) reinforce the probability and estimation sections.
+- [Information Theory](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/01-math-foundations/09-information-theory) maps to entropy, cross-entropy, and KL divergence.
+- [Sampling Methods](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/01-math-foundations/16-sampling-methods) extends the sampling and generation connection.
+
+See the [complete Month 0–1 content map](../../references/ai-engineering-from-scratch-map.md).
+
 ## About this lesson
 
 Written to cover section 0.4 of the [Month 0 curriculum](../README.md). Code examples were checked with PyTorch 2.14 on CPU.

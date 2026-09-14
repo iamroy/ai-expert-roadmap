@@ -13,6 +13,7 @@ from urllib.parse import unquote, urlsplit
 ROOT = Path(__file__).resolve().parents[1]
 LESSON_DIRS = (ROOT / "month-00" / "lessons", ROOT / "month-01" / "lessons")
 LINK_PATTERN = re.compile(r"!?\[[^\]]*\]\(([^)]+)\)")
+EXTERNAL_REFERENCE_ROOT = "https://github.com/rohitg00/ai-engineering-from-scratch/"
 
 
 def text_source(cell: dict[str, object]) -> str:
@@ -65,6 +66,10 @@ def validate_notebook(path: Path) -> tuple[list[str], int, int]:
 
     if "**Read" not in markdown and "**Watch" not in markdown:
         errors.append(f"{relative}: missing an inline reading or video callout")
+    if "## Mapped companion lessons" not in markdown:
+        errors.append(f"{relative}: missing the mapped companion lesson section")
+    if EXTERNAL_REFERENCE_ROOT not in markdown:
+        errors.append(f"{relative}: missing an ai-engineering-from-scratch reference")
     if "# Your work here" not in "\n".join(text_source(cell) for cell in code_cells):
         errors.append(f"{relative}: missing a learner work cell")
     if "<details open" in markdown.lower():
@@ -118,10 +123,18 @@ def main() -> None:
 
     expected = {path.with_suffix(".ipynb") for path in sources}
     actual = set(notebooks)
+    content_map_path = ROOT / "references" / "ai-engineering-from-scratch-map.md"
+    content_map = content_map_path.read_text(encoding="utf-8") if content_map_path.exists() else ""
+    if not content_map:
+        errors.append("Missing references/ai-engineering-from-scratch-map.md")
     for missing in sorted(expected - actual):
         errors.append(f"Missing notebook: {missing.relative_to(ROOT)}")
     for orphan in sorted(actual - expected):
         errors.append(f"Notebook without Markdown source: {orphan.relative_to(ROOT)}")
+    for notebook in sorted(expected):
+        map_target = "../" + notebook.relative_to(ROOT).as_posix()
+        if map_target not in content_map:
+            errors.append(f"Content map is missing: {notebook.relative_to(ROOT)}")
 
     total_cells = 0
     total_code_cells = 0

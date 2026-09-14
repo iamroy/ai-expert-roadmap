@@ -495,6 +495,14 @@ You are done when:
 - [jd/tenacity](https://github.com/jd/tenacity) — retry decorators with backoff and jitter, so you do not hand-roll 0.15.4
 - [fastapi/fastapi](https://github.com/fastapi/fastapi) — the serving side, including background tasks and streaming responses for 0.15.7
 
+## Mapped companion lessons
+
+- [APIs & Keys](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/00-setup-and-tooling/04-apis-and-keys) maps to authentication and API configuration.
+- [Building a Production LLM Application](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/11-llm-engineering/13-production-app) applies request contracts, streaming, retries, and failure handling in an LLM service.
+- [AI Gateways](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/17-infrastructure-and-production/19-ai-gateways) extends the same concerns to multi-provider production routing.
+
+See the [complete Month 0–1 content map](../../references/ai-engineering-from-scratch-map.md).
+
 ## About this lesson
 
 Written to cover section 0.15 of the [Month 0 curriculum](../README.md). Code examples were checked with Python 3.12.

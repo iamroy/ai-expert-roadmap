@@ -46,6 +46,10 @@ python3 tools/build_lesson_notebooks.py
 | Month 11 | Multimodal AI & Vision-Language Models | Planned |
 | Month 12 | Reasoning, World Models & AI Architecture | Planned |
 
+## Cross-curriculum maps
+
+- [Month 0–1 mapping to `ai-engineering-from-scratch`](references/ai-engineering-from-scratch-map.md) — direct companion lessons and the reason each one maps.
+
 ## Repository conventions
 
 - Keep one directory per month.

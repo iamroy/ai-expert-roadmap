@@ -461,7 +461,13 @@ You are done when:
 - [d2l-ai/d2l-en](https://github.com/d2l-ai/d2l-en) — runnable chapters on MLPs, normalization, and residual networks
 - [3Blue1Brown: But what is a neural network?](https://www.youtube.com/watch?v=aircAruvnKk)
 
-- [ai-engineering-from-scratch: deep learning core](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/03-deep-learning-core) — separate lessons on activations, losses, initialization, and regularization if you want each one slower
+
+## Mapped companion lessons
+
+- [Multi-Layer Networks and Forward Pass](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/03-deep-learning-core/02-multi-layer-networks) and [Backpropagation from Scratch](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/03-deep-learning-core/03-backpropagation) map to the end-to-end network path.
+- [Activation Functions](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/03-deep-learning-core/04-activation-functions) and [Loss Functions](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/03-deep-learning-core/05-loss-functions) provide focused implementations of two core components.
+
+See the [complete Month 0–1 content map](../../references/ai-engineering-from-scratch-map.md).
 
 ## About this lesson
 

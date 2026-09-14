@@ -159,3 +159,11 @@ Implement the four required generation modes, validate filtering edge cases, exp
 - [PyTorch softmax](https://docs.pytorch.org/docs/stable/generated/torch.nn.functional.softmax.html).
 - [PyTorch multinomial](https://docs.pytorch.org/docs/stable/generated/torch.multinomial.html).
 - [PyTorch reproducibility](https://docs.pytorch.org/docs/stable/notes/randomness.html).
+
+## Mapped companion lessons
+
+- [Sampling Methods](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/01-math-foundations/16-sampling-methods) reinforces the probability mechanics beneath decoding.
+- [Inference Optimization](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/10-llms-from-scratch/12-inference-optimization) maps to autoregressive serving, caching, batching, and latency.
+- [Speculative Decoding](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/07-transformers-deep-dive/16-speculative-decoding) extends the lesson beyond single-model token selection.
+
+See the [complete Month 0–1 content map](../../references/ai-engineering-from-scratch-map.md).

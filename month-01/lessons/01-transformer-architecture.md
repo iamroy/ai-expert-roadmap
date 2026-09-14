@@ -188,3 +188,11 @@ Derive scaled dot-product attention, trace every dimension, implement the mask a
 - [Attention Is All You Need](https://arxiv.org/abs/1706.03762) — architecture and attention.
 - [PyTorch scaled dot-product attention](https://docs.pytorch.org/docs/2.14/generated/torch.nn.functional.scaled_dot_product_attention.html) — mask and dropout semantics.
 - [Gaussian Error Linear Units](https://arxiv.org/abs/1606.08415) — GELU.
+
+## Mapped companion lessons
+
+- [Why Transformers](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/07-transformers-deep-dive/01-why-transformers) establishes the architecture transition from recurrence.
+- [Self-Attention from Scratch](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/07-transformers-deep-dive/02-self-attention-from-scratch), [Multi-Head Attention](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/07-transformers-deep-dive/03-multi-head-attention), and [The Full Transformer](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/07-transformers-deep-dive/05-full-transformer) map to the core derivation and block implementation.
+- [Build a Transformer from Scratch](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/07-transformers-deep-dive/14-build-a-transformer-capstone) provides an additional end-to-end build.
+
+See the [complete Month 0–1 content map](../../references/ai-engineering-from-scratch-map.md).

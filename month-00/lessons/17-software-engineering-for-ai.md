@@ -558,6 +558,14 @@ You are done when:
 - [pytest-dev/pytest](https://github.com/pytest-dev/pytest) — the test runner these examples assume
 - [HypothesisWorks/hypothesis](https://github.com/HypothesisWorks/hypothesis) — property-based testing, which fits ML invariants far better than example-based tests
 
+## Mapped companion lessons
+
+- [Debugging and Profiling](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/00-setup-and-tooling/12-debugging-and-profiling) and [ML Pipelines](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/02-ml-fundamentals/13-ml-pipelines) map to modularity, boundaries, and diagnosis.
+- [LLM Observability](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/17-infrastructure-and-production/13-llm-observability) maps to logs, metrics, traces, and operational signals.
+- [Load Testing LLM APIs](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/17-infrastructure-and-production/22-load-testing-llm-apis) extends integration testing to concurrent production traffic.
+
+See the [complete Month 0–1 content map](../../references/ai-engineering-from-scratch-map.md).
+
 ## About this lesson
 
 Written to cover section 0.17 of the [Month 0 curriculum](../README.md). Code examples were checked with Python 3.12 and PyTorch 2.14.

@@ -145,3 +145,11 @@ Explain RMSNorm, SwiGLU, GQA/MQA, and sparse MoE; use a configuration to estimat
 - [GLU Variants Improve Transformer](https://arxiv.org/abs/2002.05202).
 - [GQA](https://arxiv.org/abs/2305.13245).
 - [Mixtral of Experts](https://arxiv.org/abs/2401.04088).
+
+## Mapped companion lessons
+
+- [Mixture of Experts](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/07-transformers-deep-dive/11-mixture-of-experts) maps to sparse routing and active-parameter reasoning.
+- [KV Cache and Flash Attention](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/07-transformers-deep-dive/12-kv-cache-flash-attention) and [Attention Variants](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/07-transformers-deep-dive/15-attention-variants) extend attention efficiency and architecture choices.
+- [Open Models: Architecture Walkthroughs](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/10-llms-from-scratch/14-open-models-architecture-walkthroughs) applies the components to real configurations.
+
+See the [complete Month 0–1 content map](../../references/ai-engineering-from-scratch-map.md).

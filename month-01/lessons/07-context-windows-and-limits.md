@@ -119,3 +119,11 @@ Estimate input/output capacity, attention storage, and KV storage separately. De
 - [FlashAttention](https://arxiv.org/abs/2205.14135) — exact attention and memory traffic.
 - [Lost in the Middle](https://arxiv.org/abs/2307.03172) — context utilization experiments.
 - [Train Short, Test Long](https://arxiv.org/abs/2108.12409) — extrapolation and position bias.
+
+## Mapped companion lessons
+
+- [KV Cache and Flash Attention](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/07-transformers-deep-dive/12-kv-cache-flash-attention) maps to attention memory and serving cost.
+- [Native Sparse Attention](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/10-llms-from-scratch/17-native-sparse-attention) extends the architectural approaches to longer sequences.
+- [Long-Context Evaluation](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/05-nlp-foundations-to-advanced/28-long-context-evaluation) and [Context Engineering](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/11-llm-engineering/05-context-engineering) map to useful-context measurement and budget design.
+
+See the [complete Month 0–1 content map](../../references/ai-engineering-from-scratch-map.md).

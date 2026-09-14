@@ -1212,6 +1212,13 @@ These questions go beyond the original 12 and cover the pitfalls added to this l
 - [karpathy/nanoGPT](https://github.com/karpathy/nanoGPT) — `model.py` is ~300 lines and every shape transition in this lesson appears in it
 - [StatQuest: Tensors for Neural Networks](https://www.youtube.com/@statquest) — short, careful explanations if the terminology is still slippery
 
+## Mapped companion lessons
+
+- [Tensor Operations](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/01-math-foundations/12-tensor-operations) reinforces shapes, broadcasting, reductions, and matrix operations.
+- [Numerical Stability](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/01-math-foundations/13-numerical-stability) extends the stable-softmax and finite-value checks in this lesson.
+
+See the [complete Month 0–1 content map](../../references/ai-engineering-from-scratch-map.md).
+
 ## About this lesson
 
 Adapted from the roadmap planning conversation, [Create Month Zero Learning List](https://chatgpt.com/share/6aa28c17-a29c-83ea-ae5b-9202ec5ba987). The original 18 lessons, five exercises, and 12-question exit test are preserved; index selection, `einsum`, the pitfall callouts, the complete attention walkthrough, stretch exercises, and the extended check were added. Code examples were checked with NumPy 2.4 and PyTorch 2.14 on CPU.

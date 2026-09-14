@@ -267,6 +267,14 @@ You are done when:
 - [labmlai annotated implementations](https://github.com/labmlai/annotated_deep_learning_paper_implementations) — convolution and attention side by side, which makes the comparison in 0.9.5 concrete
 - [3Blue1Brown: Neural Networks series](https://www.3blue1brown.com/topics/neural-networks) — the later chapters on GPTs and attention visualize what attention actually computes
 
+## Mapped companion lessons
+
+- [Convolutions from Scratch](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/04-computer-vision/02-convolutions-from-scratch) and [CNNs — LeNet to ResNet](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/04-computer-vision/03-cnns-lenet-to-resnet) map to locality, receptive fields, and residual architectures.
+- [Transfer Learning & Fine-Tuning](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/04-computer-vision/05-transfer-learning) maps to frozen and trainable backbones.
+- [Why Transformers](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/07-transformers-deep-dive/01-why-transformers) deepens the convolution, recurrence, and attention comparison.
+
+See the [complete Month 0–1 content map](../../references/ai-engineering-from-scratch-map.md).
+
 ## About this lesson
 
 Written to cover section 0.9 of the [Month 0 curriculum](../README.md). Code examples were checked with Python 3.12.

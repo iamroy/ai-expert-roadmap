@@ -439,6 +439,14 @@ This is the last lesson in Month 0. Return to [the curriculum](../README.md) for
 - [evidentlyai/evidently](https://github.com/evidentlyai/evidently) — open-source drift and quality monitoring; run its drift reports against the PSI exercise in 0.18
 - [mlflow/mlflow](https://github.com/mlflow/mlflow) — tracking and registry, the tooling behind 0.18.1 and 0.18.2
 
+## Mapped companion lessons
+
+- [ML Pipelines](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/02-ml-fundamentals/13-ml-pipelines) and [LLM Observability](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/17-infrastructure-and-production/13-llm-observability) map to repeatable workflows and production signals.
+- [Shadow, Canary, and Progressive Deployment](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/17-infrastructure-and-production/20-shadow-canary-progressive) and [SRE for AI](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/17-infrastructure-and-production/23-sre-for-ai) extend release, rollback, and incident-response practices.
+- [Model, System, and Dataset Cards](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/18-ethics-safety-alignment/26-model-system-dataset-cards) maps to artifact documentation and governance evidence.
+
+See the [complete Month 0–1 content map](../../references/ai-engineering-from-scratch-map.md).
+
 ## About this lesson
 
 Written to cover section 0.18 of the [Month 0 curriculum](../README.md). Code examples were checked with Python 3.12.

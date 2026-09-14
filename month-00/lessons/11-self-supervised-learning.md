@@ -379,6 +379,14 @@ You are done when:
 - [huggingface/sentence-transformers](https://github.com/huggingface/sentence-transformers) — contrastive losses (MultipleNegativesRanking) as used in production embedding training
 - [labmlai annotated implementations](https://github.com/labmlai/annotated_deep_learning_paper_implementations) — annotated masked-modeling and contrastive code
 
+## Mapped companion lessons
+
+- [Self-Supervised Vision — SimCLR, DINO, MAE](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/04-computer-vision/17-self-supervised-vision) maps to contrastive, teacher-student, and masked-image objectives.
+- [BERT — Masked Language Modeling](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/07-transformers-deep-dive/06-bert-masked-language-modeling) and [GPT — Causal Language Modeling](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/07-transformers-deep-dive/07-gpt-causal-language-modeling) map to the language objectives.
+- [CLIP and Contrastive Pretraining](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/12-multimodal-ai/02-clip-contrastive-pretraining) extends the objective to paired modalities.
+
+See the [complete Month 0–1 content map](../../references/ai-engineering-from-scratch-map.md).
+
 ## About this lesson
 
 Written to cover section 0.11 of the [Month 0 curriculum](../README.md). Code examples were checked with PyTorch 2.14 on CPU.

@@ -515,6 +515,14 @@ You are now ready for [the Month 0 project](../project/tiny-text-classifier/READ
 - [karpathy/nn-zero-to-hero](https://github.com/karpathy/nn-zero-to-hero) — builds the same machinery from raw tensors before reaching for `nn.Module`
 - [labmlai annotated implementations](https://github.com/labmlai/annotated_deep_learning_paper_implementations) — idiomatic `nn.Module` code across dozens of architectures
 
+## Mapped companion lessons
+
+- [Introduction to PyTorch](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/03-deep-learning-core/11-intro-to-pytorch) provides another runnable tensor-to-training-loop path.
+- [Build Your Own Mini Framework](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/03-deep-learning-core/10-mini-framework) exposes the abstractions that PyTorch supplies.
+- [Debugging Neural Networks](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/03-deep-learning-core/13-debugging-neural-networks) extends the validation and diagnostic workflow.
+
+See the [complete Month 0–1 content map](../../references/ai-engineering-from-scratch-map.md).
+
 ## About this lesson
 
 Written to cover section 0.8 of the [Month 0 curriculum](../README.md). Code examples were checked with PyTorch 2.14 on CPU.

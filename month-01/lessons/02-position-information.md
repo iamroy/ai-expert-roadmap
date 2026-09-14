@@ -156,3 +156,10 @@ Locate position information in the forward pass, explain RoPE's relative-positio
 - [Attention Is All You Need](https://arxiv.org/abs/1706.03762) — sinusoidal position encoding.
 - [RoFormer](https://arxiv.org/abs/2104.09864) — rotary embeddings.
 - [Train Short, Test Long](https://arxiv.org/abs/2108.12409) — ALiBi.
+
+## Mapped companion lessons
+
+- [Positional Encoding — Sinusoidal, RoPE, ALiBi](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/07-transformers-deep-dive/04-positional-encoding) maps directly to every mechanism compared here.
+- [Token and Positional Embeddings](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/19-capstone-projects/32-token-positional-embeddings) provides a focused implementation artifact.
+
+See the [complete Month 0–1 content map](../../references/ai-engineering-from-scratch-map.md).

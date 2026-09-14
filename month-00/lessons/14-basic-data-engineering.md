@@ -357,6 +357,14 @@ You are done when:
 - [webdataset/webdataset](https://github.com/webdataset/webdataset) — sharded storage for large-scale training, and the answer to the many-small-objects problem in 0.14.4
 - [GokuMohandas/Made-With-ML](https://github.com/GokuMohandas/Made-With-ML) — data pipeline, versioning, and quality checks in one working repository
 
+## Mapped companion lessons
+
+- [Data Management](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/00-setup-and-tooling/09-data-management) maps to dataset organization and artifact handling.
+- [Data Pipelines for Pre-Training](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/10-llms-from-scratch/03-data-pipelines) extends storage and transformation concepts to large language-model corpora.
+- [Data Provenance and Training-Data Governance](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/18-ethics-safety-alignment/27-data-provenance-training-governance) maps to lineage, versioning, and deletion obligations.
+
+See the [complete Month 0–1 content map](../../references/ai-engineering-from-scratch-map.md).
+
 ## About this lesson
 
 Written to cover section 0.14 of the [Month 0 curriculum](../README.md). Code examples were checked with Python 3.12.

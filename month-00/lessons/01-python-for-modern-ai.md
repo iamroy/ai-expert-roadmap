@@ -1723,6 +1723,16 @@ These topics are useful, but they have little leverage before the foundation-mod
 - [karpathy/nn-zero-to-hero](https://github.com/karpathy/nn-zero-to-hero) — the reference for readable, idiomatic ML Python; skim `lectures/micrograd` for style before writing your own modules
 - [GokuMohandas/Made-With-ML](https://github.com/GokuMohandas/Made-With-ML) — a production ML codebase laid out the way this lesson argues for: packaging, config, tests, CI
 
+## Mapped companion lessons
+
+The closest matches in `ai-engineering-from-scratch` cover the operational parts of this lesson:
+
+- [Python Environments](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/00-setup-and-tooling/06-python-environments) — isolation, dependency management, and reproducibility.
+- [APIs & Keys](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/00-setup-and-tooling/04-apis-and-keys) — environment variables, credentials, and API configuration.
+- [Debugging and Profiling](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/00-setup-and-tooling/12-debugging-and-profiling) — diagnostic workflow for Python and AI programs.
+
+See the [complete Month 0–1 content map](../../references/ai-engineering-from-scratch-map.md).
+
 ## About this lesson
 
 Adapted from the roadmap planning conversation, [Create Month Zero Learning List](https://chatgpt.com/share/6aa28c17-a29c-83ea-ae5b-9202ec5ba987), and extended with production pitfalls, a bug-finding exit test, and a hands-on exercise. Code examples were checked with Python 3.12, NumPy 2.4, and PyTorch 2.14 on CPU.

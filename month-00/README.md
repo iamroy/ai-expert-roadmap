@@ -198,18 +198,10 @@ caveat. Verified reachable on 2026-09-13.
 
 The closest thing to a parallel to this roadmap: 523 lessons across 20 phases,
 each with lesson text, code, a quiz, and a build artifact. Useful as a *second
-explanation* when a Month 0 topic does not click, and as a preview of where the
-later months go. The phases that overlap Month 0 directly:
-
-| Month 0 lesson | Parallel material |
-|---|---|
-| 0.3 Linear Algebra | [`phases/01-math-foundations`](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/01-math-foundations) — lessons 01–03, 11 (SVD), 14 (norms) |
-| 0.4 Probability | same phase, lessons 06–07 (distributions, Bayes) and 09 (information theory) |
-| 0.5 Calculus | same phase, lesson 05 (chain rule and autodiff) — builds an autograd engine, like micrograd |
-| 0.2 Tensors | same phase, lessons 12–13 (tensor operations, numerical stability) |
-| 0.6–0.7 Networks and training | [`phases/03-deep-learning-core`](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/03-deep-learning-core) — activations, losses, optimizers, initialization, schedules |
-| 0.12 NLP | [`phases/05-nlp-foundations-to-advanced`](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/05-nlp-foundations-to-advanced) — lessons 01–04, 08–10 trace the same bag-of-words to attention progression |
-| 0.18 MLOps | [`phases/17-infrastructure-and-production`](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/17-infrastructure-and-production) — serving, quantization, autoscaling |
+explanation* when a topic does not click, and as a preview of where later months
+go. Every Month 0 and Month 1 lesson now links its precise companions. Use the
+[complete lesson-by-lesson content map](../references/ai-engineering-from-scratch-map.md)
+to compare all 26 lessons in one place.
 
 Caveat: it is recent and moves fast, and breadth at 523 lessons means depth
 varies by lesson. Treat it as a companion, not as a source of truth to copy from.
