@@ -14,55 +14,55 @@ This curriculum follows the eight-topic Month 1 roadmap in [Start Month 1](https
 - **LEARN** — explain a mechanism, apply it, and diagnose its production tradeoffs.
 - **MASTER** — derive the mechanism, implement it, test it, and defend alternatives.
 
-Month 1 has three MASTER topics and five LEARN topics. All eight are required. Work through each lesson's teaching examples before attempting its checkpoints without notes. Every supplied checkpoint, exercise, project solution, and exit-test answer is inside a collapsed disclosure. Open it only after writing your own attempt.
+Month 1 has three MASTER topics and five LEARN topics. All eight are required. The linked Jupyter notebooks combine the teaching text, runnable examples, learner work cells, and section-level readings or videos. Work through each lesson's examples before attempting its checkpoints without notes. Every supplied checkpoint, exercise, project solution, and exit-test answer is inside a collapsed disclosure. Open it only after writing your own attempt.
 
 ## Curriculum
 
 ### 1.1 Transformer Architecture — MASTER
 
-- [Lesson: Transformer Architecture](lessons/01-transformer-architecture.md)
+- [Lesson: Transformer Architecture](lessons/01-transformer-architecture.ipynb)
 - Encoder-only, decoder-only, encoder-decoder; transformer blocks; self-attention; multi-head attention; Q/K/V; scaled dot products; causal and padding masks; FFNs; residuals; LayerNorm; pre-norm versus post-norm; transformers versus recurrence.
 - Validation: trace tensor shapes through a full block, implement causal attention, and verify that future tokens cannot affect earlier outputs.
 
 ### 1.2 Position Information — LEARN
 
-- [Lesson: Position Information](lessons/02-position-information.md)
+- [Lesson: Position Information](lessons/02-position-information.ipynb)
 - Why order needs representation; sinusoidal and learned positions; rotary position embeddings (RoPE); ALiBi; extrapolation; long-context implications.
 - Validation: explain where each method enters computation and why extending an index range does not establish long-context quality.
 
 ### 1.3 Tokenization — LEARN
 
-- [Lesson: Tokenization](lessons/03-tokenization.md)
+- [Lesson: Tokenization](lessons/03-tokenization.ipynb)
 - Tokens versus words/characters/bytes; BPE; WordPiece; SentencePiece; vocabulary construction; special tokens; efficiency; multilingual cost; inference implications.
 - Validation: audit a tokenizer's round trip, unknown-input policy, vocabulary compatibility, and token budget.
 
 ### 1.4 LLM Training Objectives — MASTER
 
-- [Lesson: LLM Training Objectives](lessons/04-llm-training-objectives.md)
+- [Lesson: LLM Training Objectives](lessons/04-llm-training-objectives.ipynb)
 - Autoregressive and masked language modeling; next-token targets; teacher forcing; cross-entropy; general capabilities; training versus inference.
 - Validation: construct correctly shifted targets, calculate loss by hand, and debug leakage and invalid padding reductions.
 
 ### 1.5 Modern Transformer / LLM Variants — LEARN
 
-- [Lesson: Modern Transformer and LLM Variants](lessons/05-modern-transformer-and-llm-variants.md)
+- [Lesson: Modern Transformer and LLM Variants](lessons/05-modern-transformer-and-llm-variants.ipynb)
 - Decoder-only stacks; dense versus sparse models; MoE routing; SwiGLU; RMSNorm; grouped-query attention (GQA); multi-query attention (MQA).
 - Validation: read an architecture configuration and reason about active computation, resident weights, and KV-cache size separately.
 
 ### 1.6 LLM Inference & Decoding — MASTER
 
-- [Lesson: LLM Inference and Decoding](lessons/06-llm-inference-and-decoding.md)
+- [Lesson: LLM Inference and Decoding](lessons/06-llm-inference-and-decoding.ipynb)
 - Autoregressive inference; logits and probabilities; greedy, temperature, top-k, top-p, beam search; repetition penalties; stop sequences; determinism; quality, diversity, and latency.
 - Validation: implement and test samplers, describe prefill/decode and caching, and compare generation settings with fixed inputs.
 
 ### 1.7 Context Windows & Limits — LEARN
 
-- [Lesson: Context Windows and Limits](lessons/07-context-windows-and-limits.md)
+- [Lesson: Context Windows and Limits](lessons/07-context-windows-and-limits.ipynb)
 - Context accounting; quadratic attention; long-context architectures; usable versus advertised context; lost-in-the-middle; extrapolation and reasoning limits.
 - Validation: estimate attention/cache costs and design a position-sensitive context evaluation.
 
 ### 1.8 Scaling & Foundation Models — LEARN
 
-- [Lesson: Scaling and Foundation Models](lessons/08-scaling-and-foundation-models.md)
+- [Lesson: Scaling and Foundation Models](lessons/08-scaling-and-foundation-models.ipynb)
 - Foundation models; parameters, tokens, compute; scaling laws; compute-optimal training; model size and capability; production selection.
 - Validation: compare training allocations and serving costs without treating parameter count as a quality guarantee.
 

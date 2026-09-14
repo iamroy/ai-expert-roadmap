@@ -8,7 +8,7 @@
 
 Most topics are fast reviews. The three areas to validate most carefully are tensor-level PyTorch fluency, representation and self-supervised learning, and NLP foundations.
 
-All 18 sections now have complete teaching material, exercises, collapsed solutions, completion criteria, and primary references. Use the section depth to control time: attempt the validation first for SKIM topics, read weak areas, and spend more time on LEARN topics.
+All 18 sections now have complete teaching material, runnable examples, learner work cells, exercises, collapsed solutions, completion criteria, and primary references. The linked Jupyter notebooks are the interactive lessons; each also places a selected reading or video beside the concept it supports. Use the section depth to control time: attempt the validation first for SKIM topics, read weak areas, and spend more time on LEARN topics.
 
 ## Curriculum
 
@@ -16,12 +16,12 @@ All 18 sections now have complete teaching material, exercises, collapsed soluti
 
 Review classes, inheritance, dataclasses, type hints, function arguments, decorators, generators, context managers, comprehensions, exceptions, modules, environments, packaging, async basics, concurrency concepts, serialization, logging, configuration, and environment variables.
 
-- [Lesson: Python for Modern AI](lessons/01-python-for-modern-ai.md)
+- [Lesson: Python for Modern AI](lessons/01-python-for-modern-ai.ipynb)
 - Validation: pass all three exit tests and explain every required pattern without looking up syntax.
 
 ### 0.2 NumPy and Tensor Manipulation — SKIM
 
-- [Lesson: NumPy and Tensor Manipulation](lessons/02-numpy-and-tensor-manipulation.md)
+- [Lesson: NumPy and Tensor Manipulation](lessons/02-numpy-and-tensor-manipulation.ipynb)
 - Validation: complete all five exercises and answer the original 12-question exit test.
 
 - dimensions, indexing, slicing, and boolean masks
@@ -34,7 +34,7 @@ Review classes, inheritance, dataclasses, type hints, function arguments, decora
 
 ### 0.3 Linear Algebra for Deep Learning — SKIM / REFRESH
 
-- [Lesson: Linear Algebra for Deep Learning](lessons/03-linear-algebra-for-deep-learning.md)
+- [Lesson: Linear Algebra for Deep Learning](lessons/03-linear-algebra-for-deep-learning.ipynb)
 - Validation: answer the original 12-question exit test and explain the transformer connection.
 
 - vectors, matrices, tensors, transpose, and matrix multiplication
@@ -45,7 +45,7 @@ Review classes, inheritance, dataclasses, type hints, function arguments, decora
 
 ### 0.4 Probability and Statistics — SKIM
 
-- [Lesson: Probability and Statistics](lessons/04-probability-and-statistics.md)
+- [Lesson: Probability and Statistics](lessons/04-probability-and-statistics.ipynb)
 - Validation: calculate a Bayesian base-rate example and connect one-hot cross-entropy to negative log probability.
 
 - distributions, conditional probability, and Bayes' theorem
@@ -56,7 +56,7 @@ Review classes, inheritance, dataclasses, type hints, function arguments, decora
 
 ### 0.5 Calculus for Neural Networks — SKIM
 
-- [Lesson: Calculus for Neural Networks](lessons/05-calculus-for-neural-networks.md)
+- [Lesson: Calculus for Neural Networks](lessons/05-calculus-for-neural-networks.ipynb)
 - Validation: derive and verify gradients through a small computational graph.
 
 - derivatives, partial derivatives, gradients, and the chain rule
@@ -65,7 +65,7 @@ Review classes, inheritance, dataclasses, type hints, function arguments, decora
 
 ### 0.6 Neural-Network Fundamentals — SKIM
 
-- [Lesson: Neural-Network Fundamentals](lessons/06-neural-network-fundamentals.md)
+- [Lesson: Neural-Network Fundamentals](lessons/06-neural-network-fundamentals.ipynb)
 - Validation: implement and diagnose a residual MLP with normalization, GELU, and dropout.
 
 - linear layers, activations, forward pass, losses, and backpropagation
@@ -74,7 +74,7 @@ Review classes, inheritance, dataclasses, type hints, function arguments, decora
 
 ### 0.7 Training Fundamentals — SKIM
 
-- [Lesson: Training Fundamentals](lessons/07-training-fundamentals.md)
+- [Lesson: Training Fundamentals](lessons/07-training-fundamentals.ipynb)
 - Validation: trace one optimizer update and define a resumable, reproducible checkpoint.
 
 - SGD, momentum, Adam, and AdamW
@@ -84,7 +84,7 @@ Review classes, inheritance, dataclasses, type hints, function arguments, decora
 
 ### 0.8 PyTorch Fundamentals — SKIM / REFRESH
 
-- [Lesson: PyTorch Fundamentals](lessons/08-pytorch-fundamentals.md)
+- [Lesson: PyTorch Fundamentals](lessons/08-pytorch-fundamentals.ipynb)
 - Validation: implement a tiny MLP loop, evaluate it correctly, and verify a checkpoint reload.
 
 - tensors, devices, shapes, and autograd
@@ -96,7 +96,7 @@ Review classes, inheritance, dataclasses, type hints, function arguments, decora
 
 ### 0.9 Deep-Learning Architecture Concepts — SKIM
 
-- [Lesson: Deep-Learning Architecture Concepts](lessons/09-deep-learning-architecture-concepts.md)
+- [Lesson: Deep-Learning Architecture Concepts](lessons/09-deep-learning-architecture-concepts.ipynb)
 - Validation: compare convolution and attention, then design a controlled transfer-learning experiment.
 
 - feature extraction, hierarchical representations, and receptive fields
@@ -106,7 +106,7 @@ Review classes, inheritance, dataclasses, type hints, function arguments, decora
 
 ### 0.10 Representation Learning — REFRESH
 
-- [Lesson: Representation Learning](lessons/10-representation-learning.md)
+- [Lesson: Representation Learning](lessons/10-representation-learning.ipynb)
 - Validation: audit an embedding pipeline's objective, metric, evaluation, and version contract.
 
 - latent representations, feature vectors, embeddings, and embedding spaces
@@ -116,7 +116,7 @@ Review classes, inheritance, dataclasses, type hints, function arguments, decora
 
 ### 0.11 Self-Supervised Learning — LEARN / REFRESH
 
-- [Lesson: Self-Supervised Learning](lessons/11-self-supervised-learning.md)
+- [Lesson: Self-Supervised Learning](lessons/11-self-supervised-learning.ipynb)
 - Validation: compare autoregressive, masked, contrastive, and teacher-student objectives and their failure modes.
 
 - distinguish supervised, unsupervised, and self-supervised learning
@@ -125,7 +125,7 @@ Review classes, inheritance, dataclasses, type hints, function arguments, decora
 
 ### 0.12 Basic NLP Concepts — LEARN
 
-- [Lesson: Basic NLP Concepts](lessons/12-basic-nlp-concepts.md)
+- [Lesson: Basic NLP Concepts](lessons/12-basic-nlp-concepts.ipynb)
 - Validation: build a baseline ladder and explain the progression from sparse counts to contextual transformers.
 
 - corpus, document, sentence, token, and vocabulary
@@ -135,7 +135,7 @@ Review classes, inheritance, dataclasses, type hints, function arguments, decora
 
 ### 0.13 Information Retrieval Fundamentals — REFRESH
 
-- [Lesson: Information Retrieval Fundamentals](lessons/13-information-retrieval-fundamentals.md)
+- [Lesson: Information Retrieval Fundamentals](lessons/13-information-retrieval-fundamentals.ipynb)
 - Validation: calculate ranking metrics and design lexical, dense, hybrid, and reranked comparisons.
 
 - document retrieval, inverted indexes, lexical search, TF-IDF, and BM25
@@ -144,7 +144,7 @@ Review classes, inheritance, dataclasses, type hints, function arguments, decora
 
 ### 0.14 Basic Data Engineering — SKIM
 
-- [Lesson: Basic Data Engineering](lessons/14-basic-data-engineering.md)
+- [Lesson: Basic Data Engineering](lessons/14-basic-data-engineering.ipynb)
 - Validation: design a versioned, idempotent ingestion pipeline with lineage and deletion.
 
 - structured and unstructured data
@@ -154,7 +154,7 @@ Review classes, inheritance, dataclasses, type hints, function arguments, decora
 
 ### 0.15 APIs and Web Fundamentals — SKIM
 
-- [Lesson: APIs and Web Fundamentals](lessons/15-apis-and-web-fundamentals.md)
+- [Lesson: APIs and Web Fundamentals](lessons/15-apis-and-web-fundamentals.ipynb)
 - Validation: specify a reliable asynchronous inference API with safe retries and streaming decisions.
 
 - HTTP, REST, methods, headers, status codes, and JSON payloads
@@ -163,7 +163,7 @@ Review classes, inheritance, dataclasses, type hints, function arguments, decora
 
 ### 0.16 Linux, Containers, and Git — SKIM
 
-- [Lesson: Linux, Containers, and Git](lessons/16-linux-containers-and-git.md)
+- [Lesson: Linux, Containers, and Git](lessons/16-linux-containers-and-git.ipynb)
 - Validation: explain a containerized service from process and port through Git commit and deployed image.
 
 - shell, processes, environment variables, permissions, and networking basics
@@ -172,7 +172,7 @@ Review classes, inheritance, dataclasses, type hints, function arguments, decora
 
 ### 0.17 Software Engineering for AI — SKIM
 
-- [Lesson: Software Engineering for AI](lessons/17-software-engineering-for-ai.md)
+- [Lesson: Software Engineering for AI](lessons/17-software-engineering-for-ai.ipynb)
 - Validation: design a testable AI component with explicit contracts, dependencies, and telemetry.
 
 - modular code, interfaces, dependency injection, and configuration-driven systems
@@ -181,7 +181,7 @@ Review classes, inheritance, dataclasses, type hints, function arguments, decora
 
 ### 0.18 MLOps Fundamentals — SKIM
 
-- [Lesson: MLOps Fundamentals](lessons/18-mlops-fundamentals.md)
+- [Lesson: MLOps Fundamentals](lessons/18-mlops-fundamentals.ipynb)
 - Validation: define a traceable model release with gates, canary monitoring, and rollback.
 
 - experiment tracking, model registries, and artifact storage

@@ -4,14 +4,14 @@ Mark completion after demonstrating understanding, not merely reading the files.
 
 ## Topics
 
-- [ ] [1.1 Transformer Architecture — MASTER](lessons/01-transformer-architecture.md)
-- [ ] [1.2 Position Information — LEARN](lessons/02-position-information.md)
-- [ ] [1.3 Tokenization — LEARN](lessons/03-tokenization.md)
-- [ ] [1.4 LLM Training Objectives — MASTER](lessons/04-llm-training-objectives.md)
-- [ ] [1.5 Modern Transformer / LLM Variants — LEARN](lessons/05-modern-transformer-and-llm-variants.md)
-- [ ] [1.6 LLM Inference & Decoding — MASTER](lessons/06-llm-inference-and-decoding.md)
-- [ ] [1.7 Context Windows & Limits — LEARN](lessons/07-context-windows-and-limits.md)
-- [ ] [1.8 Scaling & Foundation Models — LEARN](lessons/08-scaling-and-foundation-models.md)
+- [ ] [1.1 Transformer Architecture — MASTER](lessons/01-transformer-architecture.ipynb)
+- [ ] [1.2 Position Information — LEARN](lessons/02-position-information.ipynb)
+- [ ] [1.3 Tokenization — LEARN](lessons/03-tokenization.ipynb)
+- [ ] [1.4 LLM Training Objectives — MASTER](lessons/04-llm-training-objectives.ipynb)
+- [ ] [1.5 Modern Transformer / LLM Variants — LEARN](lessons/05-modern-transformer-and-llm-variants.ipynb)
+- [ ] [1.6 LLM Inference & Decoding — MASTER](lessons/06-llm-inference-and-decoding.ipynb)
+- [ ] [1.7 Context Windows & Limits — LEARN](lessons/07-context-windows-and-limits.ipynb)
+- [ ] [1.8 Scaling & Foundation Models — LEARN](lessons/08-scaling-and-foundation-models.ipynb)
 
 ## Validation
 

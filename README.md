@@ -19,6 +19,15 @@ Each month will contain:
 - knowledge checks and exit criteria
 - progress notes
 
+Lessons are published as interactive Jupyter notebooks so explanations, runnable
+examples, exercises, readings, and videos stay together. The same-named Markdown
+files are the maintainable lesson sources. After editing a source lesson or the
+resource map, rebuild the notebooks with:
+
+```bash
+python3 tools/build_lesson_notebooks.py
+```
+
 ## Contents
 
 | Module | Theme | Status |
@@ -40,6 +49,7 @@ Each month will contain:
 ## Repository conventions
 
 - Keep one directory per month.
+- Link learners to the generated `.ipynb` lesson and keep its same-named `.md` source in sync through the notebook builder.
 - Record progress in each month's `progress.md`.
 - Store runnable work under the month's `exercises/` or `project/` directory.
 - Prefer primary documentation and papers over framework-specific tutorials.
