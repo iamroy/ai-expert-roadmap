@@ -357,7 +357,11 @@ W = [D, K]
 Then:
 
 ```python
+X = torch.randn(10, 768)
+W = torch.randn(768, 256)
 Y = X @ W
+
+assert Y.shape == (10, 256)
 ```
 
 has shape `[N, K]`. The inner dimensions must match:
@@ -407,9 +411,14 @@ Kᵀ = [B, D, N]
 PyTorch can multiply the final two axes for every batch:
 
 ```python
+Q = torch.randn(2, 4, 8)
+K = torch.randn(2, 4, 8)
 scores = torch.matmul(Q, K.transpose(-2, -1))
 # equivalently for exactly 3D inputs:
-scores = torch.bmm(Q, K.transpose(1, 2))
+scores_bmm = torch.bmm(Q, K.transpose(1, 2))
+
+assert scores.shape == (2, 4, 4)
+assert torch.equal(scores, scores_bmm)
 ```
 
 The result is:
@@ -444,6 +453,9 @@ b.shape = [4, 768]
 Concatenation extends an existing axis:
 
 ```python
+a = torch.randn(4, 768)
+b = torch.randn(4, 768)
+
 torch.cat([a, b], dim=0).shape  # [8, 768]
 torch.cat([a, b], dim=1).shape  # [4, 1536]
 ```
@@ -934,6 +946,7 @@ Write a multi-head self-attention forward pass using only linear layers, `reshap
 
 Each line runs without an error but computes the wrong thing. Explain the bug and fix it.
 
+<!-- notebook: keep-as-markdown -->
 ```python
 # Given: x, hidden: [B, N, D]; scores: [B, H, N, N]; logits: [B, C]
 #        probs: [B, 1]; labels: [B]; batches contain padding

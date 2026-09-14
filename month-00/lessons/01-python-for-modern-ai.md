@@ -196,9 +196,17 @@ train_model("bert", 20)
 train_model(model="bert", epochs=20)
 ```
 
-The first two calls use positional arguments. The third uses keyword arguments. AI libraries use keyword arguments heavily because model configuration can contain many options:
+The first two calls use positional arguments. The third uses keyword arguments. AI libraries use keyword arguments heavily because model configuration can contain many options. This small stand-in makes the pattern runnable without requiring a training framework:
 
 ```python
+class Trainer:
+    def __init__(self, *, model, batch_size, learning_rate, epochs):
+        self.model = model
+        self.batch_size = batch_size
+        self.learning_rate = learning_rate
+        self.epochs = epochs
+
+model = "demo-model"
 trainer = Trainer(
     model=model,
     batch_size=16,
@@ -246,6 +254,11 @@ Inside the function, `kwargs` is:
 Configuration unpacking performs the reverse operation:
 
 ```python
+class SomeModel:
+    def __init__(self, hidden_size: int, num_layers: int):
+        self.hidden_size = hidden_size
+        self.num_layers = num_layers
+
 config = {
     "hidden_size": 768,
     "num_layers": 12,
@@ -396,8 +409,13 @@ A PyTorch map-style `Dataset` is exactly this pattern: `DataLoader` calls `len(d
 `__call__` makes an instance callable like a function. `nn.Module` implements `__call__`, which runs any registered hooks and then your `forward` method:
 
 ```python
+import torch
+
+model = Classifier()
+inputs = torch.randn(2, 768)
 logits = model(inputs)             # preferred
 # logits = model.forward(inputs)   # skips hooks; avoid
+assert logits.shape == (2, 2)
 ```
 
 ## 0.1.4 — Inheritance and `super()`
@@ -682,12 +700,14 @@ tiny-text-classifier/
 
 An absolute import names the full path from the top-level package:
 
+<!-- notebook: keep-as-markdown -->
 ```python
 from text_classifier.model import Classifier
 ```
 
 A relative import starts from the current module's package:
 
+<!-- notebook: keep-as-markdown -->
 ```python
 # inside src/text_classifier/train.py
 from .data import TextDataset
@@ -801,17 +821,19 @@ Python 3.12 also provides `itertools.batched`, which yields tuples.
 
 ## 0.1.9 — Context managers
 
-A context manager acquires and releases a resource around a block.
+A context manager acquires and releases a resource around a block. `StringIO` gives this lesson a file-like resource without assuming a local `config.json` exists:
 
 ```python
-with open("config.json", encoding="utf-8") as file:
+from io import StringIO
+
+with StringIO('{"batch_size": 16}') as file:
     data = file.read()
 ```
 
 The file is closed even if reading or processing raises an exception. Conceptually, this resembles:
 
 ```python
-file = open("config.json", encoding="utf-8")
+file = StringIO('{"batch_size": 16}')
 
 try:
     data = file.read()
@@ -822,8 +844,11 @@ finally:
 ML code also uses contexts to change behavior temporarily:
 
 ```python
+inference_model = Classifier()
+example_inputs = torch.randn(2, 768)
+
 with torch.no_grad():
-    predictions = model(inputs)
+    predictions = inference_model(example_inputs)
 ```
 
 This tells PyTorch not to build a gradient graph within the block.
@@ -881,6 +906,7 @@ except FileNotFoundError as error:
 
 Use `else` for work that should run only when no exception occurred and `finally` for cleanup that must always happen:
 
+<!-- notebook: keep-as-markdown -->
 ```python
 connection = open_connection()
 
@@ -894,14 +920,17 @@ finally:
     connection.close()
 ```
 
-Raise a clear error when an input violates an assumption:
+Raise a clear error when an input violates an assumption. Put validation in a function so callers receive the error at the boundary:
 
 ```python
-if batch_size <= 0:
-    raise ValueError("batch_size must be positive")
+def validate_runtime(batch_size: int, device: str) -> None:
+    if batch_size <= 0:
+        raise ValueError("batch_size must be positive")
 
-if device not in {"cpu", "cuda", "mps"}:
-    raise ValueError(f"Unsupported device: {device}")
+    if device not in {"cpu", "cuda", "mps"}:
+        raise ValueError(f"Unsupported device: {device}")
+
+validate_runtime(batch_size=16, device="cpu")
 ```
 
 A custom exception gives a domain-specific failure a recognizable type:
@@ -944,13 +973,14 @@ Never hard-code secrets:
 api_key = "secret-value"
 ```
 
-Read them from the environment:
+Read them from the environment. Use `os.environ["API_KEY"]` when the variable is mandatory and startup should fail if it is absent. A notebook should not require a real secret, so this runnable example uses `getenv` and reports only whether a key exists:
 
 ```python
 import os
 
-api_key = os.environ["API_KEY"]
+api_key = os.getenv("API_KEY")
 device = os.getenv("DEVICE", "cpu")
+print("API key configured:", api_key is not None)
 ```
 
 `os.environ["API_KEY"]` raises `KeyError` if the value is missing. `os.getenv("API_KEY")` returns `None` unless a default is supplied.
@@ -1009,7 +1039,8 @@ import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-logger.debug("Batch shape: %s", batch.shape)
+batch_shape = (32, 128, 768)
+logger.debug("Batch shape: %s", batch_shape)
 logger.info("Training started")
 logger.warning("Falling back to CPU")
 logger.error("Checkpoint is missing")
@@ -1018,12 +1049,16 @@ logger.error("Checkpoint is missing")
 Inside an exception handler, `logger.exception` includes the stack trace:
 
 ```python
+def train() -> None:
+    raise RuntimeError("simulated training failure")
+
 try:
     train()
 except RuntimeError:
     logger.exception("Training failed")
-    raise
 ```
+
+This demonstration handles the simulated failure so the notebook can continue. A production entry point would normally re-raise after logging or return a nonzero exit status.
 
 Use parameterized logging (`logger.info("loss=%s", loss)`) so formatting happens only when that level is enabled.
 
@@ -1104,6 +1139,9 @@ You only need to recognize and make basic edits to this file during Month 0.
 Normal blocking code waits for an operation to finish:
 
 ```python
+def call_llm() -> str:
+    return "simulated response"
+
 response = call_llm()
 ```
 
@@ -1142,8 +1180,10 @@ async def main() -> None:
     print(f"concurrent: {time.perf_counter() - start:.1f} s")   # ~1.0 s
     print(results)
 
-asyncio.run(main())
+await main()
 ```
+
+Use `await main()` in this notebook because Jupyter already owns an event loop. In a Python script, the entry point would be `asyncio.run(main())`.
 
 `async` does not make model computation faster. It is mainly useful for I/O-bound work. Blocking code inside a coroutine, such as `time.sleep` or a synchronous HTTP client, still blocks the whole event loop. Move unavoidable blocking calls off the loop with `await asyncio.to_thread(blocking_function, ...)`.
 
@@ -1176,7 +1216,7 @@ async def show_stream() -> None:
     async for token in stream_tokens("tokens arrive one at a time"):
         print(token, end=" ", flush=True)
 
-asyncio.run(show_stream())
+await show_stream()
 ```
 
 > **Pitfall:** `asyncio.run` cannot be called while an event loop is already running, which is the case inside Jupyter notebooks. In a notebook cell, write `await main()` instead.
@@ -1191,20 +1231,27 @@ These are different concurrency models:
 
 Threads do not speed up pure-Python CPU work because the standard CPython interpreter has a Global Interpreter Lock (GIL): only one thread executes Python bytecode at a time. Threads still help with I/O because the lock is released while waiting, and many NumPy and PyTorch operations release it inside native code. Python 3.13+ also offers an optional free-threaded build without the GIL; confirm that your dependencies support it before relying on it.
 
-`concurrent.futures` offers the same interface for both models:
+`concurrent.futures` offers the same interface for both models. The thread example is safe to run in an interactive notebook:
 
 ```python
-from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor
 
 def tokenize(text: str) -> list[str]:
     return text.lower().split()
 
+texts = ["Hello World", "Tensors Everywhere"] * 1000
+
+with ThreadPoolExecutor(max_workers=8) as pool:    # suited to I/O-bound work
+    tokenized = list(pool.map(tokenize, texts))
+```
+
+Process workers must import functions from a real module. This script-oriented sketch stays visible for comparison but is intentionally not an executable notebook cell:
+
+<!-- notebook: keep-as-markdown -->
+```python
+from concurrent.futures import ProcessPoolExecutor
+
 if __name__ == "__main__":
-    texts = ["Hello World", "Tensors Everywhere"] * 1000
-
-    with ThreadPoolExecutor(max_workers=8) as pool:    # suited to I/O-bound work
-        _ = list(pool.map(tokenize, texts))
-
     with ProcessPoolExecutor(max_workers=4) as pool:   # suited to CPU-bound Python work
         tokenized = list(pool.map(tokenize, texts, chunksize=100))
 ```
@@ -1278,6 +1325,7 @@ Model checkpoints inherit this risk because `torch.save` uses pickle. Since PyTo
 
 ### 1. Configuration unpacking
 
+<!-- notebook: keep-as-markdown -->
 ```python
 config = {"lr": 1e-4, "epochs": 10}
 train(**config)
@@ -1300,6 +1348,7 @@ def predict(text: str) -> list[float]:
 
 ### 4. Context manager
 
+<!-- notebook: keep-as-markdown -->
 ```python
 with torch.no_grad():
     output = model(inputs)
@@ -1307,6 +1356,7 @@ with torch.no_grad():
 
 ### 5. Async API call
 
+<!-- notebook: keep-as-markdown -->
 ```python
 response = await client.generate(prompt)
 ```
@@ -1430,6 +1480,7 @@ config = ModelConfig(
 
 Each snippet runs, or appears to, but contains a bug that commonly reaches production ML code. Identify the bug and give the fix. Assume `torch`, `nn`, `client`, and the helper functions exist.
 
+<!-- notebook: keep-as-markdown -->
 ```python
 # 1
 def collect_metrics(value, history=[]):

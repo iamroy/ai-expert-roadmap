@@ -302,6 +302,7 @@ def split_cells(markdown: str) -> list[tuple[str, str]]:
     index = 0
     details_depth = 0
     generic_fence: str | None = None
+    keep_next_python_fence = False
 
     def flush_markdown() -> None:
         text = "\n".join(buffer).strip("\n")
@@ -313,9 +314,18 @@ def split_cells(markdown: str) -> list[tuple[str, str]]:
         line = lines[index]
         stripped = line.strip()
 
+        if details_depth == 0 and generic_fence is None and stripped == "<!-- notebook: keep-as-markdown -->":
+            keep_next_python_fence = True
+
         # Convert visible Python fences into executable cells. Fences inside a
-        # details block stay Markdown so hidden solutions remain collapsed.
-        if details_depth == 0 and generic_fence is None and stripped == "```python":
+        # details block and explicitly illustrative fences stay Markdown so
+        # hidden solutions and incomplete API sketches are never run by Run All.
+        if (
+            details_depth == 0
+            and generic_fence is None
+            and stripped == "```python"
+            and not keep_next_python_fence
+        ):
             flush_markdown()
             index += 1
             code: list[str] = []
@@ -348,6 +358,7 @@ def split_cells(markdown: str) -> list[tuple[str, str]]:
 
         if generic_fence is None and stripped.startswith("```"):
             generic_fence = stripped[:3]
+            keep_next_python_fence = False
         elif generic_fence is not None and stripped == generic_fence:
             generic_fence = None
 
