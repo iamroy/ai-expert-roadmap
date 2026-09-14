@@ -76,6 +76,35 @@ Suppose two tokenizers encode the same document in 800 and 1,200 tokens. The sec
 
 If a service charges per token, the text's language and encoding affect cost. A fixed “four characters per token” estimate is a rough heuristic for some text, never a safe capacity check. Count with the actual tokenizer, including instructions, retrieved context, chat serialization, and output reservation.
 
+The underlying reason is visible without a tokenizer at all. Byte-level BPE operates on UTF-8 bytes, and UTF-8 does not spend equal bytes per character across scripts:
+
+```python
+samples = {
+    "English": "The model reads the text.",
+    "Spanish": "El modelo lee el texto.",
+    "Hindi": "मॉडल पाठ पढ़ता है।",
+    "Japanese": "モデルはテキストを読みます。",
+    "Emoji": "🙂🙂🙂🙂🙂🙂",
+}
+
+for name, text in samples.items():
+    characters, byte_length = len(text), len(text.encode("utf-8"))
+    print(f"{name:9} {characters:>3} chars  {byte_length:>3} UTF-8 bytes  "
+          f"{byte_length / characters:.2f} bytes/char")
+```
+
+```text
+English    25 chars   25 UTF-8 bytes  1.00 bytes/char
+Spanish    23 chars   23 UTF-8 bytes  1.00 bytes/char
+Hindi      18 chars   48 UTF-8 bytes  2.67 bytes/char
+Japanese   14 chars   42 UTF-8 bytes  3.00 bytes/char
+Emoji       6 chars   24 UTF-8 bytes  4.00 bytes/char
+```
+
+Bytes are not tokens, and merges recover much of this — a tokenizer trained with good coverage of a script will learn multi-byte pieces for it. But the training corpus decides which scripts get that treatment, and most widely used vocabularies are English-dominated. The result is a real and frequently measured effect: the same meaning in a non-Latin script can cost several times more tokens than its English translation.
+
+That has three consequences you should treat as design constraints rather than trivia. Per-token pricing charges some languages more for identical content. A fixed context window holds proportionally less text in those languages. And a "same length" evaluation set is not actually matched across languages unless you measured it in tokens. Always verify with the specific tokenizer for the specific checkpoint, since a family's revisions can change vocabulary.
+
 For `D=512`, increasing a vocabulary from 16,000 to 32,000 adds about 8.2 million parameters to a single embedding table. Untied input/output weights add that amount twice. Weight tying shares their matrix, but the output distribution still has one score per vocabulary entry.
 
 Tokenization also affects perplexity comparisons: a model predicting bytes and one predicting subwords solve different token-level prediction tasks. Compare losses only under compatible evaluation units, or convert to a common unit such as bits per byte with a carefully defined evaluation procedure.
@@ -129,6 +158,13 @@ Trace text to IDs and back, distinguish BPE/WordPiece/SentencePiece, explain voc
 - [SentencePiece](https://arxiv.org/abs/1808.06226) — system and supported tokenization approaches.
 - [BERT](https://arxiv.org/abs/1810.04805) — WordPiece and special-token conventions in a specific model.
 - [Neural Machine Translation of Rare Words with Subword Units](https://arxiv.org/abs/1508.07909) — BPE for subword modeling.
+
+## Videos and code to read
+
+- [Let's build the GPT Tokenizer](https://www.youtube.com/watch?v=zduSFxRajkE) — Karpathy on BPE, byte-level encoding, and the failure modes tokenization causes
+- [karpathy/minbpe](https://github.com/karpathy/minbpe) — minimal, readable BPE training and encoding; the reference for this lesson's audit exercise
+- [huggingface/tokenizers](https://github.com/huggingface/tokenizers) — the production implementation, including the round-trip and special-token behavior you are auditing
+- [google/sentencepiece](https://github.com/google/sentencepiece) — unigram and BPE training without language-specific pre-splitting
 
 ## Mapped companion lessons
 

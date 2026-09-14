@@ -173,9 +173,76 @@ That advantage has a cost: full attention compares all pairs of positions, and g
 <details>
 <summary>Show exercise solutions</summary>
 
-1. Use `nn.Linear(48, 144)` and split its final dimension into three tensors. Each goes through `reshape(B, T, 3, 16).transpose(1, 2)`. Apply attention, then `transpose(1, 2).contiguous().view(B, T, 48)` and `nn.Linear(48, 48)`. The complete implementation is in the project's collapsed reference.
-2. Create two equal-length token sequences identical through index `r`. Replace only positions after `r` in one sequence. With dropout disabled, logits through `r` should be equal within numerical tolerance. Test several prefixes and seeds. Without masking, differences generally appear earlier; row-sum and upper-triangle tests provide additional deterministic checks of the attention operation.
-3. Q/K/V and the output projection total `4D²`. FFN matrices total `D×4D + 4D×D = 8D²`; together `12D²`. Head splitting changes how projected channels interact, not these dense matrix sizes.
+### Exercises 1 and 2 — multi-head attention and the causal-invariance test
+
+```python
+from torch import nn
+
+
+class MultiHeadCausalAttention(nn.Module):
+    def __init__(self, width: int, heads: int):
+        super().__init__()
+        assert width % heads == 0, "width must divide evenly into heads"
+        self.heads, self.head_dim = heads, width // heads
+        self.qkv = nn.Linear(width, 3 * width)      # one projection, split three ways
+        self.out = nn.Linear(width, width)
+
+    def forward(self, x):
+        B, T, D = x.shape
+        qkv = self.qkv(x).reshape(B, T, 3, self.heads, self.head_dim)
+        q, k, v = qkv.permute(2, 0, 3, 1, 4)        # each [B, H, T, Dh]
+        context, weights = causal_attention(q, k, v)
+        merged = context.transpose(1, 2).reshape(B, T, D)
+        return self.out(merged), weights
+
+
+torch.manual_seed(0)
+model = MultiHeadCausalAttention(width=48, heads=3).eval()
+
+x = torch.randn(2, 7, 48)
+y, w = model(x)
+print(f"x {tuple(x.shape)} -> per-head q/k/v [2, 3, 7, 16] -> scores {tuple(w.shape)} -> y {tuple(y.shape)}")
+
+assert y.shape == (2, 7, 48)
+assert w.shape == (2, 3, 7, 7)
+assert torch.allclose(w.sum(-1), torch.ones(2, 3, 7), atol=1e-6)   # rows are distributions
+assert torch.count_nonzero(w.triu(diagonal=1)) == 0                # nothing attends forward
+
+# Exercise 2: change only the future, and check the past is unmoved.
+a = torch.randn(1, 9, 48)
+b = a.clone()
+b[:, 5:] = torch.randn(1, 4, 48)
+with torch.inference_mode():
+    ya, _ = model(a)
+    yb, _ = model(b)
+
+print("prefix outputs identical:", torch.allclose(ya[:, :5], yb[:, :5], atol=1e-6))
+print("suffix outputs differ:   ", not torch.allclose(ya[:, 5:], yb[:, 5:], atol=1e-6))
+```
+
+```text
+x (2, 7, 48) -> per-head q/k/v [2, 3, 7, 16] -> scores (2, 3, 7, 7) -> y (2, 7, 48)
+prefix outputs identical: True
+suffix outputs differ:    True
+```
+
+The second test is the one that matters, and it is the same check the project requires. Both halves are needed: if the prefix changed, the mask leaks the future; if the suffix did *not* change, your model is ignoring its input somewhere. Delete the `masked_fill` line and rerun — the prefix assertion fails immediately, which is the fastest way to see what the mask is actually doing.
+
+### Exercise 3 — parameter count
+
+```python
+model = MultiHeadCausalAttention(width=48, heads=3)
+weight_params = sum(p.numel() for p in model.parameters() if p.dim() > 1)
+print(f"attention weight params {weight_params:,} = 4*D^2 = {4 * 48 * 48:,}")
+
+for heads in (1, 2, 4, 8, 16):
+    m = MultiHeadCausalAttention(width=48, heads=heads) if 48 % heads == 0 else None
+    if m:
+        total = sum(p.numel() for p in m.parameters() if p.dim() > 1)
+        print(f"heads={heads:2d} head_dim={48 // heads:2d}  weight params {total:,}")
+```
+
+Q/K/V and the output projection total `4D²`; a two-matrix FFN with `Dff=4D` adds `8D²`, so a block is about `12D²` excluding biases and norms. The loop shows why head count does not appear in that formula: heads partition the same `D` channels into `H` groups of `D/H`, so the projections keep their size and only the *grouping* of channels changes. More heads means more, narrower attention patterns at identical parameter cost — the trade is representational, not budgetary.
 
 </details>
 
@@ -188,6 +255,13 @@ Derive scaled dot-product attention, trace every dimension, implement the mask a
 - [Attention Is All You Need](https://arxiv.org/abs/1706.03762) — architecture and attention.
 - [PyTorch scaled dot-product attention](https://docs.pytorch.org/docs/2.14/generated/torch.nn.functional.scaled_dot_product_attention.html) — mask and dropout semantics.
 - [Gaussian Error Linear Units](https://arxiv.org/abs/1606.08415) — GELU.
+
+## Videos and code to read
+
+- [Let's build GPT: from scratch, in code, spelled out](https://www.youtube.com/watch?v=kCc8FmEb1nY) — Karpathy builds exactly this lesson's block live; the best two hours available on this topic
+- [karpathy/nanoGPT](https://github.com/karpathy/nanoGPT) — `model.py` is a complete, readable decoder-only transformer in ~300 lines; read `CausalSelfAttention` against your Exercise 1
+- [harvardnlp/annotated-transformer](https://github.com/harvardnlp/annotated-transformer) — the original paper with the implementation interleaved line by line
+- [The Illustrated Transformer](https://jalammar.github.io/illustrated-transformer/) — the reference diagrams for shapes and head splitting
 
 ## Mapped companion lessons
 

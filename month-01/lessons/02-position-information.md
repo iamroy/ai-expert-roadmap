@@ -157,6 +157,12 @@ Locate position information in the forward pass, explain RoPE's relative-positio
 - [RoFormer](https://arxiv.org/abs/2104.09864) — rotary embeddings.
 - [Train Short, Test Long](https://arxiv.org/abs/2108.12409) — ALiBi.
 
+## Videos and code to read
+
+- [lucidrains/rotary-embedding-torch](https://github.com/lucidrains/rotary-embedding-torch) — a compact, readable RoPE implementation; compare its rotation against your own
+- [karpathy/nanoGPT](https://github.com/karpathy/nanoGPT) — learned absolute positions, the simplest baseline to contrast with RoPE
+- [labmlai annotated implementations](https://github.com/labmlai/annotated_deep_learning_paper_implementations) — annotated RoPE and ALiBi side by side with the equations
+
 ## Mapped companion lessons
 
 - [Positional Encoding — Sinusoidal, RoPE, ALiBi](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/07-transformers-deep-dive/04-positional-encoding) maps directly to every mechanism compared here.

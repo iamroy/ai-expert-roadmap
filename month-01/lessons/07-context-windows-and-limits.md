@@ -29,6 +29,33 @@ Doubling sequence length therefore quadruples the pairwise attention work and sc
 
 An example: one layer with batch 1, 8 heads, and 4,096 positions has `134,217,728` score entries. At two bytes per entry, that is 256 MiB for one materialized score tensor, before probabilities, other activations, gradients, or weights. The project exposes attention maps for inspection; that design becomes expensive at long lengths.
 
+The growth rate is the part worth feeling rather than reading:
+
+```python
+def attention_scores_bytes(tokens, heads, dtype_bytes=2):
+    return heads * tokens * tokens * dtype_bytes
+
+
+print(f"{'tokens':>9} {'score matrix':>16} {'relative cost':>14}")
+base = None
+for tokens in (1_024, 4_096, 16_384, 131_072):
+    gb = attention_scores_bytes(tokens, heads=32) / 1e9
+    base = base or gb
+    print(f"{tokens:>9,} {gb:>13.2f} GB {gb / base:>13.0f}x")
+```
+
+```text
+   tokens     score matrix  relative cost
+    1,024          0.07 GB             1x
+    4,096          1.07 GB            16x
+   16,384         17.18 GB           256x
+  131,072       1099.51 GB         16384x
+```
+
+A 128× longer sequence costs 16,384× the score memory. At 128k the materialized scores for a single layer would need about 1.1 TB, which is why nobody materializes them: FlashAttention computes the same result in tiles and never stores the full matrix, and that is a memory-access change, not an approximation.
+
+Contrast this with the KV cache from 1.5, which grows *linearly* in length. Long-context serving therefore has two different cost curves running at once — quadratic compute against linear cache — and which one binds depends on whether you are prefilling a long prompt or decoding token by token.
+
 ## Lesson 1.7.3 — Efficient attention is not automatically sparse attention
 
 [FlashAttention](https://arxiv.org/abs/2205.14135) computes exact attention with an IO-aware tiled algorithm, avoiding storage of the full attention matrix in high-bandwidth memory. It improves the memory/execution pattern without making dense attention cease to compare all relevant pairs. Floating-point ordering can still produce small numerical differences from another implementation.
@@ -119,6 +146,12 @@ Estimate input/output capacity, attention storage, and KV storage separately. De
 - [FlashAttention](https://arxiv.org/abs/2205.14135) — exact attention and memory traffic.
 - [Lost in the Middle](https://arxiv.org/abs/2307.03172) — context utilization experiments.
 - [Train Short, Test Long](https://arxiv.org/abs/2108.12409) — extrapolation and position bias.
+
+## Videos and code to read
+
+- [Dao-AILab/flash-attention](https://github.com/Dao-AILab/flash-attention) — the tiled exact-attention kernel that makes the 1.1 TB score matrix in this lesson unnecessary
+- [vllm-project/vllm](https://github.com/vllm-project/vllm) — PagedAttention, the answer to cache fragmentation at long context
+- [EleutherAI/lm-evaluation-harness](https://github.com/EleutherAI/lm-evaluation-harness) — infrastructure for running the position-sensitive evaluation this lesson asks you to design
 
 ## Mapped companion lessons
 

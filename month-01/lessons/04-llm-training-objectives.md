@@ -104,6 +104,50 @@ The objective still rewards predictive fit to a data distribution. It does not d
 
 For padded targets, mark ignored positions and average only over valid ones. An all-ignored batch has no meaningful mean loss; reject or skip it deliberately. With unequal valid-token counts per batch, aggregate the sum of token losses and divide by the total valid-token count. Averaging batch means gives each batch equal weight regardless of how many predictions it contains.
 
+PyTorch spells this `ignore_index`. The convention is to set ignored target positions to `-100` and pass `ignore_index=-100`; those positions then contribute neither to the numerator nor to the denominator. The three ways to get this wrong all produce a plausible number, which is what makes the bug survive:
+
+```python
+import torch
+import torch.nn.functional as F
+
+torch.manual_seed(0)
+V = 32
+logits = torch.randn(3, 6, V)
+targets = torch.randint(0, V, (3, 6))
+for row, valid_length in enumerate([6, 3, 1]):          # very unequal sequences
+    targets[row, valid_length:] = -100
+
+flat_logits, flat_targets = logits.reshape(-1, V), targets.reshape(-1)
+
+correct = F.cross_entropy(flat_logits, flat_targets, ignore_index=-100)
+
+per_sequence = []
+for row in range(3):
+    keep = targets[row] != -100
+    per_sequence.append(F.cross_entropy(logits[row][keep], targets[row][keep]))
+mean_of_means = torch.stack(per_sequence).mean()
+
+counted_as_class_zero = F.cross_entropy(flat_logits, flat_targets.clamp(min=0))
+
+print(f"correct (token-weighted):   {correct:.4f}  over {(flat_targets != -100).sum().item()}/18 tokens")
+print(f"mean of per-sequence means: {mean_of_means:.4f}")
+print(f"padding counted as class 0: {counted_as_class_zero:.4f}")
+```
+
+```text
+correct (token-weighted):   4.0838  over 10/18 tokens
+mean of per-sequence means: 3.9209
+padding counted as class 0: 4.1080
+```
+
+All three are the same order of magnitude, near `log 32 ≈ 3.47` for this untrained tensor, so none looks obviously broken on a loss curve. But they optimize different things:
+
+- **Token-weighted** is almost always what you want: every real prediction counts once.
+- **Mean of per-sequence means** gives a 1-token sequence the same weight as a 6-token one. With sorted or bucketed batching this systematically over-weights short sequences.
+- **Counting padding as class 0** trains the model to predict the pad token, wasting capacity and corrupting the distribution. Since `-100` is not a valid class index, forgetting `ignore_index` raises an error rather than doing this — but `clamp`, `abs`, or using `0` as the pad id silently converts the crash into this quiet corruption.
+
+The related reduction bug is at the outer level: if you average each batch's mean across the epoch, batches with few valid tokens count as much as full ones. Accumulate the summed token loss and the valid-token count, and divide once.
+
 Separate documents or sources before creating training windows. Randomly splitting overlapping windows leaks near-identical text into validation. Duplicate content can also cross document boundaries, so deduplication and task-relevant evaluation matter.
 
 A healthy tiny-model debugging sequence is: inspect one batch, verify causality, overfit one small training batch, then train with held-out data. Low validation loss with a broken mask is not evidence of language-model quality: the model may be seeing the answer in its input.
@@ -161,6 +205,12 @@ Build shifted batches, derive token cross-entropy and its gradient, explain teac
 - [BERT](https://arxiv.org/abs/1810.04805) — masked pretraining.
 - [T5](https://arxiv.org/abs/1910.10683) — text-to-text objectives.
 - [Language Models are Few-Shot Learners](https://arxiv.org/abs/2005.14165) — capabilities from autoregressive pretraining at scale.
+
+## Videos and code to read
+
+- [karpathy/nanoGPT](https://github.com/karpathy/nanoGPT) — `train.py` shows shifted targets and the loss reduction in production form
+- [karpathy/nn-zero-to-hero](https://github.com/karpathy/nn-zero-to-hero) — the makemore lectures build next-token prediction up from counting, which makes teacher forcing concrete
+- [huggingface/transformers](https://github.com/huggingface/transformers) — `DataCollatorForLanguageModeling` is the canonical reference for label shifting and `-100` masking
 
 ## Mapped companion lessons
 

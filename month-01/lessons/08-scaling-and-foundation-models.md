@@ -42,6 +42,39 @@ Power-law improvement has diminishing absolute returns: multiplying resources ca
 
 Use small-scale experiments to check data quality, optimization, and scaling direction before a costly run. Extrapolation far beyond a measured range carries substantial uncertainty.
 
+A rough but useful accounting rule is that training cost is about `6 × parameters × tokens` FLOPs: roughly two FLOPs per parameter for the forward pass and four for the backward. That single formula lets you see the allocation problem directly. Given a fixed budget, every parameter you add must be paid for with tokens you no longer train on:
+
+```python
+def training_flops(params, tokens):
+    return 6 * params * tokens
+
+
+budget = 1e23                                       # a fixed compute budget
+for params in (7e9, 70e9, 280e9):
+    tokens = budget / (6 * params)
+    print(f"{params / 1e9:6.0f}B params -> {tokens / 1e12:7.2f}T tokens  "
+          f"({tokens / params:6.1f} tokens/param)")
+
+print()
+for params in (7e9, 70e9):
+    tokens = 20 * params                            # the Chinchilla-style ratio
+    print(f"{params / 1e9:5.0f}B at 20 tokens/param needs "
+          f"{training_flops(params, tokens):.2e} FLOPs ({tokens / 1e12:.2f}T tokens)")
+```
+
+```text
+     7B params ->    2.38T tokens  ( 340.1 tokens/param)
+    70B params ->    0.24T tokens  (   3.4 tokens/param)
+   280B params ->    0.06T tokens  (   0.2 tokens/param)
+
+    7B at 20 tokens/param needs 5.88e+21 FLOPs (0.14T tokens)
+   70B at 20 tokens/param needs 5.88e+23 FLOPs (1.40T tokens)
+```
+
+The first block is the trade-off that scaling-law work exists to resolve. At a fixed budget, a 7B model gets 340 tokens per parameter while a 280B model gets 0.2 — wildly overtrained against severely undertrained, from the same compute. [Chinchilla](https://arxiv.org/abs/2203.15556) found the loss-minimizing point for its setup was far more balanced than prevailing practice, near 20 tokens per parameter, which implied that many well-known models of that era were too large for the data they saw.
+
+Two cautions on using this. The `6ND` rule ignores attention's quadratic term, which matters at long sequence lengths, and it ignores real utilization: achieved FLOPs are a fraction of peak. And compute-optimal is optimal *for training loss only*. If a model will serve billions of requests, a smaller model trained past its compute-optimal point is often the better total-cost decision, which is exactly the argument 1.8.5 develops.
+
 ## Lesson 1.8.4 — Compute-optimal training
 
 For a conventional dense decoder, a frequently used rough training estimate is:
@@ -124,6 +157,12 @@ Use parameters, tokens, compute, memory, and task quality as separate quantities
 - [Language Models are Few-Shot Learners](https://arxiv.org/abs/2005.14165).
 - [Scaling Laws for Neural Language Models](https://arxiv.org/abs/2001.08361).
 - [Training Compute-Optimal Large Language Models](https://arxiv.org/abs/2203.15556).
+
+## Videos and code to read
+
+- [karpathy/nanoGPT](https://github.com/karpathy/nanoGPT) — the scaling arithmetic in this lesson applied to a run you can actually afford; its README reports concrete compute and token budgets
+- [EleutherAI/lm-evaluation-harness](https://github.com/EleutherAI/lm-evaluation-harness) — standard evaluation, so capability claims rest on measurement rather than parameter count
+- [huggingface/transformers](https://github.com/huggingface/transformers) — model config files are the fastest way to compare real architecture and scale choices across families
 
 ## Mapped companion lessons
 

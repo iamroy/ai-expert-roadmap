@@ -222,7 +222,7 @@ SECTION_RESOURCES: dict[str, dict[str, str]] = {
         ),
     },
     "month-01/lessons/06-llm-inference-and-decoding.md": {
-        "## Lesson 1.6.3 — Top-k and top-p restrict the candidate set": (
+        "## Lesson 1.6.4 — Top-k and top-p restrict the candidate set": (
             "> **Read next:** [The Curious Case of Neural Text Degeneration]"
             "(https://arxiv.org/abs/1904.09751) motivates nucleus sampling by showing why "
             "maximization and fixed candidate sets can produce brittle or repetitive text."
