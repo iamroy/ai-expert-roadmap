@@ -373,6 +373,12 @@ You are done when:
 - [Self-supervised learning: The dark matter of intelligence, Meta AI](https://ai.meta.com/blog/self-supervised-learning-the-dark-matter-of-intelligence/)
 - [Lilian Weng: Self-supervised representation learning](https://lilianweng.github.io/posts/2019-11-10-self-supervised/)
 
+## Videos and code to read
+
+- [facebookresearch/dino](https://github.com/facebookresearch/dino) — the teacher/student implementation, including the centering and sharpening that prevent collapse
+- [huggingface/sentence-transformers](https://github.com/huggingface/sentence-transformers) — contrastive losses (MultipleNegativesRanking) as used in production embedding training
+- [labmlai annotated implementations](https://github.com/labmlai/annotated_deep_learning_paper_implementations) — annotated masked-modeling and contrastive code
+
 ## About this lesson
 
 Written to cover section 0.11 of the [Month 0 curriculum](../README.md). Code examples were checked with PyTorch 2.14 on CPU.

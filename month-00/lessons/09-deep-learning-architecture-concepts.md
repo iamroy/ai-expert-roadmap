@@ -59,6 +59,30 @@ layer 3: 7×7
 
 So a CNN's early layers are structurally *local*. Relating two distant pixels requires enough depth, downsampling, or dilation for their receptive fields to overlap. This locality is a strong, useful prior for images, where nearby pixels really are related.
 
+```python
+def receptive_field(layers: int, kernel: int = 3, stride: int = 1) -> int:
+    """Receptive field of a stack of identical convolution layers."""
+    field, jump = 1, 1
+    for _ in range(layers):
+        field += (kernel - 1) * jump
+        jump *= stride
+    return field
+
+
+for layers in [1, 3, 5, 10, 50]:
+    print(f"{layers:2d} layers of 3x3 stride 1 -> receptive field {receptive_field(layers):3d}")
+```
+
+```text
+ 1 layers of 3x3 stride 1 -> receptive field   3
+ 3 layers of 3x3 stride 1 -> receptive field   7
+ 5 layers of 3x3 stride 1 -> receptive field  11
+10 layers of 3x3 stride 1 -> receptive field  21
+50 layers of 3x3 stride 1 -> receptive field 101
+```
+
+Fifty layers to see 101 pixels. That is the price of locality, and it is why real CNNs downsample: with stride, the field grows multiplicatively rather than additively.
+
 In a transformer the situation is different: **every token can attend to every other token in the first layer**. The receptive field is the entire context window immediately. Nothing forces attention to be local, and nothing forces it to be global; it is learned.
 
 The cost is quadratic. Attention computes an `N × N` score matrix (0.2), so doubling sequence length quadruples attention compute and memory, while a convolution stays linear in input size. That single trade-off drives a large amount of research: sliding-window and sparse attention, linear attention, FlashAttention's memory-efficient exact computation, and state-space models. Month 1 and Month 9 return to it.
@@ -236,6 +260,12 @@ You are done when:
 - [LoRA](https://arxiv.org/abs/2106.09685)
 - [PyTorch: transfer learning tutorial](https://docs.pytorch.org/tutorials/beginner/transfer_learning_tutorial.html)
 - [Deep Residual Learning for Image Recognition](https://arxiv.org/abs/1512.03385)
+
+## Videos and code to read
+
+- [d2l-ai/d2l-en](https://github.com/d2l-ai/d2l-en) — the CNN and attention chapters, with runnable receptive-field and parameter-count examples
+- [labmlai annotated implementations](https://github.com/labmlai/annotated_deep_learning_paper_implementations) — convolution and attention side by side, which makes the comparison in 0.9.5 concrete
+- [3Blue1Brown: Neural Networks series](https://www.3blue1brown.com/topics/neural-networks) — the later chapters on GPTs and attention visualize what attention actually computes
 
 ## About this lesson
 

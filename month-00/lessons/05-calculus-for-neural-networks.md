@@ -350,6 +350,14 @@ You are done when:
 - [Deep Learning Book](https://www.deeplearningbook.org/contents/numerical.html), chapter 4
 - [An overview of gradient descent optimization algorithms](https://www.ruder.io/optimizing-gradient-descent/)
 
+## Videos and code to read
+
+- [karpathy/micrograd](https://github.com/karpathy/micrograd) — a scalar autograd engine in about 100 readable lines; read it alongside [the lecture](https://www.youtube.com/watch?v=VMj-3S1tku0) and you will not be confused about backpropagation again
+- [karpathy/nn-zero-to-hero](https://github.com/karpathy/nn-zero-to-hero) — the notebooks for that lecture, including the exercises
+- [3Blue1Brown: Neural Networks](https://www.3blue1brown.com/topics/neural-networks) — chapters 3 and 4 are gradient descent and backpropagation
+
+- [ai-engineering-from-scratch: chain rule and autodiff](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/01-math-foundations/05-chain-rule-and-autodiff) — a second pass at this lesson that builds an autograd engine end to end
+
 ## About this lesson
 
 Written to cover section 0.5 of the [Month 0 curriculum](../README.md). Code examples were checked with PyTorch 2.14 on CPU.

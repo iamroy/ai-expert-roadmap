@@ -1667,6 +1667,11 @@ These topics are useful, but they have little leverage before the foundation-mod
 - [PyTorch: `torch.load`](https://docs.pytorch.org/docs/stable/generated/torch.load.html)
 - [PyTorch: `torch.utils.data`](https://docs.pytorch.org/docs/stable/data.html)
 
+## Videos and code to read
+
+- [karpathy/nn-zero-to-hero](https://github.com/karpathy/nn-zero-to-hero) — the reference for readable, idiomatic ML Python; skim `lectures/micrograd` for style before writing your own modules
+- [GokuMohandas/Made-With-ML](https://github.com/GokuMohandas/Made-With-ML) — a production ML codebase laid out the way this lesson argues for: packaging, config, tests, CI
+
 ## About this lesson
 
 Adapted from the roadmap planning conversation, [Create Month Zero Learning List](https://chatgpt.com/share/6aa28c17-a29c-83ea-ae5b-9202ec5ba987), and extended with production pitfalls, a bug-finding exit test, and a hands-on exercise. Code examples were checked with Python 3.12, NumPy 2.4, and PyTorch 2.14 on CPU.

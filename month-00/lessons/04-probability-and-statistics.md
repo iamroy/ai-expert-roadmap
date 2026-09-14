@@ -434,6 +434,12 @@ You are done when:
 - [NIST/SEMATECH e-Handbook of Statistical Methods](https://www.itl.nist.gov/div898/handbook/)
 - [PyTorch distributions](https://docs.pytorch.org/docs/stable/distributions.html)
 
+## Videos and code to read
+
+- [StatQuest with Josh Starmer](https://www.youtube.com/@statquest) — the single best video source for this lesson; the entropy, cross-entropy, and softmax explanations are short and exact
+- [3Blue1Brown: Bayes' theorem](https://www.youtube.com/watch?v=HZGCoVF3YvM) — the geometric picture that makes base rates obvious
+- [karpathy/nn-zero-to-hero](https://github.com/karpathy/nn-zero-to-hero) — `makemore` builds a language model up from raw counts to negative log-likelihood, which is this lesson made concrete
+
 ## About this lesson
 
 Written to cover section 0.4 of the [Month 0 curriculum](../README.md). Code examples were checked with PyTorch 2.14 on CPU.

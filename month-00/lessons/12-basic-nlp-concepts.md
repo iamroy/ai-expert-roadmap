@@ -530,6 +530,14 @@ You now have every component the [Month 0 project](../project/tiny-text-classifi
 - [Hugging Face: tokenizers summary](https://huggingface.co/docs/transformers/tokenizer_summary)
 - [Let's build the GPT Tokenizer, Karpathy](https://www.youtube.com/watch?v=zduSFxRajkE)
 
+## Videos and code to read
+
+- [karpathy/minbpe](https://github.com/karpathy/minbpe) — a minimal, readable BPE implementation; the natural next step after this lesson's Exercise 4, paired with [Let's build the GPT Tokenizer](https://www.youtube.com/watch?v=zduSFxRajkE)
+- [Let's build GPT from scratch](https://www.youtube.com/watch?v=kCc8FmEb1nY) — the end of the progression table, built live
+- [huggingface/sentence-transformers](https://github.com/huggingface/sentence-transformers) — where the static-to-contextual jump lands in practice
+
+- [ai-engineering-from-scratch: NLP foundations](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/05-nlp-foundations-to-advanced) — walks the same bag-of-words to attention progression over several lessons
+
 ## About this lesson
 
 Written to cover section 0.12 of the [Month 0 curriculum](../README.md). Code examples were checked with Python 3.12 and PyTorch 2.14.

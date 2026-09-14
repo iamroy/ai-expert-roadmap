@@ -552,6 +552,12 @@ You are done when:
 - [OpenTelemetry](https://opentelemetry.io/docs/) — tracing across services
 - [Hidden Technical Debt in Machine Learning Systems](https://papers.nips.cc/paper/2015/hash/86df7dcfd896fcaf2674f757a2463eba-Abstract.html) — the canonical account of why ML systems rot
 
+## Videos and code to read
+
+- [GokuMohandas/Made-With-ML](https://github.com/GokuMohandas/Made-With-ML) — the closest thing to a worked example of this entire lesson: modular layout, config, tests, CI, and serving
+- [pytest-dev/pytest](https://github.com/pytest-dev/pytest) — the test runner these examples assume
+- [HypothesisWorks/hypothesis](https://github.com/HypothesisWorks/hypothesis) — property-based testing, which fits ML invariants far better than example-based tests
+
 ## About this lesson
 
 Written to cover section 0.17 of the [Month 0 curriculum](../README.md). Code examples were checked with Python 3.12 and PyTorch 2.14.

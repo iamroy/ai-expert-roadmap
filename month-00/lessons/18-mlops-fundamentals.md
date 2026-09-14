@@ -432,6 +432,13 @@ This is the last lesson in Month 0. Return to [the curriculum](../README.md) for
 - [Hidden Technical Debt in Machine Learning Systems](https://papers.nips.cc/paper/2015/hash/86df7dcfd896fcaf2674f757a2463eba-Abstract.html)
 - [Designing Machine Learning Systems, Chip Huyen](https://www.oreilly.com/library/view/designing-machine-learning/9781098107956/) — chapters 8 and 9 on drift and monitoring
 
+## Videos and code to read
+
+- [graviraja/MLOps-Basics](https://github.com/graviraja/MLOps-Basics) — a week-by-week build covering tracking, data versioning, packaging, Docker, CI, and monitoring; the best structured follow-on to this lesson
+- [GokuMohandas/Made-With-ML](https://github.com/GokuMohandas/Made-With-ML) — the same ground as a single production repository
+- [evidentlyai/evidently](https://github.com/evidentlyai/evidently) — open-source drift and quality monitoring; run its drift reports against the PSI exercise in 0.18
+- [mlflow/mlflow](https://github.com/mlflow/mlflow) — tracking and registry, the tooling behind 0.18.1 and 0.18.2
+
 ## About this lesson
 
 Written to cover section 0.18 of the [Month 0 curriculum](../README.md). Code examples were checked with Python 3.12.

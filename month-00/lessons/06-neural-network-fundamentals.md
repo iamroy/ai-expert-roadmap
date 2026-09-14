@@ -454,6 +454,15 @@ You are done when:
 - [The Illustrated Transformer](https://jalammar.github.io/illustrated-transformer/)
 - [Neural Networks: Zero to Hero, Andrej Karpathy](https://karpathy.ai/zero-to-hero.html)
 
+## Videos and code to read
+
+- [karpathy/nn-zero-to-hero](https://github.com/karpathy/nn-zero-to-hero) — the `makemore` lectures build an MLP, then add BatchNorm and diagnose initialization, which is this lesson end to end
+- [labmlai annotated implementations](https://github.com/labmlai/annotated_deep_learning_paper_implementations) — LayerNorm, RMSNorm, and the transformer block with notes beside each line
+- [d2l-ai/d2l-en](https://github.com/d2l-ai/d2l-en) — runnable chapters on MLPs, normalization, and residual networks
+- [3Blue1Brown: But what is a neural network?](https://www.youtube.com/watch?v=aircAruvnKk)
+
+- [ai-engineering-from-scratch: deep learning core](https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/03-deep-learning-core) — separate lessons on activations, losses, initialization, and regularization if you want each one slower
+
 ## About this lesson
 
 Written to cover section 0.6 of the [Month 0 curriculum](../README.md). Code examples were checked with PyTorch 2.14 on CPU.

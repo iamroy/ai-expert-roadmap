@@ -1193,6 +1193,12 @@ These questions go beyond the original 12 and cover the pitfalls added to this l
 - [PyTorch: `scaled_dot_product_attention`](https://docs.pytorch.org/docs/stable/generated/torch.nn.functional.scaled_dot_product_attention.html)
 - [PyTorch: Numerical accuracy](https://docs.pytorch.org/docs/stable/notes/numerical_accuracy.html)
 
+## Videos and code to read
+
+- [labmlai/annotated_deep_learning_paper_implementations](https://github.com/labmlai/annotated_deep_learning_paper_implementations) — side-by-side notes and tensor code; the best place to see shape manipulation in real models
+- [karpathy/nanoGPT](https://github.com/karpathy/nanoGPT) — `model.py` is ~300 lines and every shape transition in this lesson appears in it
+- [StatQuest: Tensors for Neural Networks](https://www.youtube.com/@statquest) — short, careful explanations if the terminology is still slippery
+
 ## About this lesson
 
 Adapted from the roadmap planning conversation, [Create Month Zero Learning List](https://chatgpt.com/share/6aa28c17-a29c-83ea-ae5b-9202ec5ba987). The original 18 lessons, five exercises, and 12-question exit test are preserved; index selection, `einsum`, the pitfall callouts, the complete attention walkthrough, stretch exercises, and the extended check were added. Code examples were checked with NumPy 2.4 and PyTorch 2.14 on CPU.

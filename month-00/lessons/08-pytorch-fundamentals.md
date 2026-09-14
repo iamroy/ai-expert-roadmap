@@ -509,6 +509,12 @@ You are now ready for [the Month 0 project](../project/tiny-text-classifier/READ
 - [Performance tuning guide](https://docs.pytorch.org/tutorials/recipes/recipes/tuning_guide.html)
 - [CUDA semantics and memory management](https://docs.pytorch.org/docs/stable/notes/cuda.html)
 
+## Videos and code to read
+
+- [pytorch/examples](https://github.com/pytorch/examples) — official, minimal, runnable training scripts; the MNIST example is the canonical shape of the loop in this lesson
+- [karpathy/nn-zero-to-hero](https://github.com/karpathy/nn-zero-to-hero) — builds the same machinery from raw tensors before reaching for `nn.Module`
+- [labmlai annotated implementations](https://github.com/labmlai/annotated_deep_learning_paper_implementations) — idiomatic `nn.Module` code across dozens of architectures
+
 ## About this lesson
 
 Written to cover section 0.8 of the [Month 0 curriculum](../README.md). Code examples were checked with PyTorch 2.14 on CPU.

@@ -351,6 +351,12 @@ You are done when:
 - [Deduplicating Training Data Makes Language Models Better](https://arxiv.org/abs/2107.06499)
 - [Datasheets for Datasets](https://arxiv.org/abs/1803.09010)
 
+## Videos and code to read
+
+- [huggingface/datasets](https://github.com/huggingface/datasets) — Arrow-backed, memory-mapped dataset handling; a practical model for streaming data larger than RAM
+- [webdataset/webdataset](https://github.com/webdataset/webdataset) — sharded storage for large-scale training, and the answer to the many-small-objects problem in 0.14.4
+- [GokuMohandas/Made-With-ML](https://github.com/GokuMohandas/Made-With-ML) — data pipeline, versioning, and quality checks in one working repository
+
 ## About this lesson
 
 Written to cover section 0.14 of the [Month 0 curriculum](../README.md). Code examples were checked with Python 3.12.

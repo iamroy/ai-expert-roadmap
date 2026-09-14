@@ -89,6 +89,26 @@ chown user:group file        # change ownership
 
 The ten characters are a type flag plus three triples for owner, group, and others, each `rwx`. Numerically, read is 4, write 2, execute 1, so `755` means owner all, others read and execute, and `600` means owner read and write only.
 
+```python
+def to_octal(symbolic: str) -> str:
+    """Convert the 9 permission characters from `ls -l` into octal: rw-r--r-- -> 644."""
+    assert len(symbolic) == 9, "pass just the 9 permission characters"
+    weights = {"r": 4, "w": 2, "x": 1, "-": 0}
+    triples = [symbolic[0:3], symbolic[3:6], symbolic[6:9]]
+    return "".join(str(sum(weights[character] for character in triple)) for triple in triples)
+
+
+for symbolic in ["rw-r--r--", "rwxr-xr-x", "rw-------", "rwxrwxrwx"]:
+    print(f"{symbolic} -> {to_octal(symbolic)}")
+```
+
+```text
+rw-r--r-- -> 644
+rwxr-xr-x -> 755
+rw------- -> 600
+rwxrwxrwx -> 777
+```
+
 Permission errors are common when a container writes to a mounted host directory as root, leaving files the host user cannot delete. Running the container as your own UID avoids it.
 
 ## 0.16.5 — Networking basics
@@ -376,6 +396,12 @@ You are done when:
 - [Oh Shit, Git!?!](https://ohshitgit.com/) — recovery recipes
 - [git-filter-repo](https://github.com/newren/git-filter-repo) — removing committed secrets from history
 - [pre-commit](https://pre-commit.com/) and [nbstripout](https://github.com/kynan/nbstripout)
+
+## Videos and code to read
+
+- [MIT: The Missing Semester](https://missing.csail.mit.edu/) — lecture videos and exercises for the shell, scripting, and Git; the single highest-return resource in this lesson
+- [Learn Git Branching](https://learngitbranching.js.org/) — interactive branching and rebasing, which builds the mental model faster than reading
+- [pre-commit/pre-commit](https://github.com/pre-commit/pre-commit) and [kynan/nbstripout](https://github.com/kynan/nbstripout) — stop secrets and notebook outputs from ever reaching a commit
 
 ## About this lesson
 

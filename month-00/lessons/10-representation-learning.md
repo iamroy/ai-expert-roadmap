@@ -382,6 +382,12 @@ You are done when:
 - [Toy Models of Superposition](https://transformer-circuits.pub/2022/toy_model/index.html)
 - [Linguistic Regularities in Continuous Space Word Representations](https://aclanthology.org/N13-1090/) — the analogy result, with its caveats
 
+## Videos and code to read
+
+- [huggingface/sentence-transformers](https://github.com/huggingface/sentence-transformers) — the reference implementation for pooling, normalization, and training embedding models; read the pooling module against 0.10.6
+- [embeddings-benchmark/mteb](https://github.com/embeddings-benchmark/mteb) — how embedding quality is actually measured across tasks, which is 0.10.7 in practice
+- [karpathy/nn-zero-to-hero](https://github.com/karpathy/nn-zero-to-hero) — the `makemore` MLP lecture visualizes a learned embedding space directly
+
 ## About this lesson
 
 Written to cover section 0.10 of the [Month 0 curriculum](../README.md). Code examples were checked with PyTorch 2.14 on CPU.

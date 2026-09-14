@@ -869,6 +869,12 @@ These questions go beyond the original 12 and cover the material added to this l
 - [MIT 18.06 Linear Algebra (Gilbert Strang)](https://ocw.mit.edu/courses/18-06-linear-algebra-spring-2010/) — optional depth on rank, eigenvectors, and SVD
 - [PyTorch: `torch.linalg.svd`](https://docs.pytorch.org/docs/stable/generated/torch.linalg.svd.html)
 
+## Videos and code to read
+
+- [3Blue1Brown: Essence of Linear Algebra](https://www.3blue1brown.com/topics/linear-algebra) — watch this before anything else if matrices still feel like number grids
+- [d2l-ai/d2l-en](https://github.com/d2l-ai/d2l-en) — the runnable source behind Dive into Deep Learning, including the linear algebra chapter
+- [labmlai annotated implementations](https://github.com/labmlai/annotated_deep_learning_paper_implementations) — attention implemented with the equations beside the code
+
 ## About this lesson
 
 Adapted from the roadmap planning conversation, [Create Month Zero Learning List](https://chatgpt.com/share/6aa28c17-a29c-83ea-ae5b-9202ec5ba987), and an earlier repository version. The original 14 lessons, transformer connection, and 12-question exit test are preserved. Notation conventions, runnable checks, corrected LoRA notation and attention scaling, the logits connection, hands-on exercises, and the extended check were added. Code examples were checked with PyTorch 2.14 on CPU.

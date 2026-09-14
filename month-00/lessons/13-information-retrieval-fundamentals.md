@@ -472,6 +472,12 @@ You are done when:
 - [Reciprocal Rank Fusion](https://plg.uwaterloo.ca/~gvcormac/cormacksigir09-rrf.pdf)
 - [Pretrained Transformers for Text Ranking: BERT and Beyond](https://arxiv.org/abs/2010.06467)
 
+## Videos and code to read
+
+- [dorianbrown/rank_bm25](https://github.com/dorianbrown/rank_bm25) — a compact BM25 implementation; compare its scoring function line by line with the class in 0.13.3
+- [beir-cellar/beir](https://github.com/beir-cellar/beir) — the benchmark that shows where dense retrieval beats BM25 and where it does not, with runnable evaluation code
+- [huggingface/sentence-transformers](https://github.com/huggingface/sentence-transformers) — bi-encoder and cross-encoder training, which is 0.13.7 in code
+
 ## About this lesson
 
 Written to cover section 0.13 of the [Month 0 curriculum](../README.md). Code examples were checked with Python 3.12.

@@ -489,6 +489,12 @@ You are done when:
 - [tenacity](https://tenacity.readthedocs.io/) — retry decorators with backoff strategies
 - [FastAPI](https://fastapi.tiangolo.com/) — for the serving side in later months
 
+## Videos and code to read
+
+- [encode/httpx](https://github.com/encode/httpx) — sync and async client with first-class timeout and connection-limit support
+- [jd/tenacity](https://github.com/jd/tenacity) — retry decorators with backoff and jitter, so you do not hand-roll 0.15.4
+- [fastapi/fastapi](https://github.com/fastapi/fastapi) — the serving side, including background tasks and streaming responses for 0.15.7
+
 ## About this lesson
 
 Written to cover section 0.15 of the [Month 0 curriculum](../README.md). Code examples were checked with Python 3.12.

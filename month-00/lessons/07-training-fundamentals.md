@@ -455,6 +455,12 @@ You are done when:
 - [PyTorch: reproducibility](https://docs.pytorch.org/docs/stable/notes/randomness.html)
 - [PyTorch: automatic mixed precision](https://docs.pytorch.org/docs/stable/amp.html)
 
+## Videos and code to read
+
+- [karpathy/nanoGPT](https://github.com/karpathy/nanoGPT) — `train.py` is a ~300-line training loop with warmup, cosine decay, clipping, accumulation, and checkpointing all visible at once. Note the repo is now archived in favor of [karpathy/nanochat](https://github.com/karpathy/nanochat), which is worth reading for a current end-to-end pipeline
+- [google-research/tuning_playbook](https://github.com/google-research/tuning_playbook) — what to tune, in what order, and how to tell whether a change helped
+- [StatQuest: gradient descent and SGD](https://www.youtube.com/@statquest) — if the optimizer intuition is thin
+
 ## About this lesson
 
 Written to cover section 0.7 of the [Month 0 curriculum](../README.md). Code examples were checked with PyTorch 2.14 on CPU.
